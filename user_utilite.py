@@ -1,120 +1,158 @@
 import curses
-import time
-import os
+from collections import namedtuple
+import subprocess
 
 PROGRAM_NAME = "USER MANAGER INTERFACE"
-VERSION = "0.1.0"
-AUTHORS = "Khlebokazov Danila"  # if you participate please add your name here
+VERSION = "0.2.0"
+AUTHORS = "D_K"
 
 RUNNING_TITLE = f"{PROGRAM_NAME} v.{VERSION} // {AUTHORS}"
 
-WELCOME_TEXT = "Добро пожаловать в программу!"
-PRESS_ENTER_TEXT = "Нажмите Enter для продолжения..."
-GOODBYE_TEXT = "До свидания! Спасибо за использование программы."
-CONGRATS_TEXT = "Процесс завершился!"
-ENCODE_PROCESS_TEXT = "Процесс шифрования..."
-DECODE_PROCESS_TEXT = "Процесс расшифрования..."
-
-MENU_DOWN_SHIFT = 1
+User = namedtuple("User", ["username", "uid", "full_name", "is_locked"])
 
 
-def state_manager():
-    program_state = "hello"
-    state_list = ["main", "exit", "add_user", "show_all_users"]
-
-    def change_state(state):
-        nonlocal program_state
-        if state in state_list:
-            program_state = state
-        else:
-            raise ValueError("Invalid state")
-
-    def get_state():
-        return program_state
-
-    return get_state, change_state
+class ProgramCodes:
+    UP = 3
+    DOWN = 4
+    ADD_USER = 7
+    DELETE_USER = 8
+    LOCK_USER = 9
+    UNLOCK_USER = 10
+    EXIT = 11
 
 
-state_getter, state_setter = state_manager()
+def get_all_users():
+    users = []
+    result = subprocess.run(['cat', '/etc/passwd'], stdout=subprocess.PIPE)
+    for line in list(filter(lambda x: ":" in x, result.stdout.decode().splitlines())):
+        parts = line.split(':')
+        print(parts)
+        if int(parts[2]) >= 1000:
+            username = parts[0]
+            uid = parts[2]
+            full_name = parts[4]
+            is_locked = check_user_locked(username)
+            users.append(User(username=username, uid=uid, full_name=full_name, is_locked=is_locked))
+    return users
 
 
-def show_welcome_screen(stdscr, state):
-    height, width = stdscr.getmaxyx()
-    stdscr.attron(curses.color_pair(1))
-    stdscr.addstr(height // 2 - 1, (width - len(WELCOME_TEXT)) // 2, WELCOME_TEXT, curses.A_BOLD)
-    stdscr.addstr(height // 2 + 1, (width - len(PRESS_ENTER_TEXT)) // 2, PRESS_ENTER_TEXT, curses.A_NORMAL)
-    stdscr.attroff(curses.color_pair(1))
+def check_user_locked(username):
+    result = subprocess.run(['passwd', '--status', username], stdout=subprocess.PIPE)
+    return 'L' in result.stdout.decode()
+
+
+def add_user(username, full_name):
+    subprocess.run(['sudo', 'useradd', '-c', full_name, username])
+    subprocess.run(['sudo', 'passwd', username])
+
+
+def delete_user(username):
+    subprocess.run(['sudo', 'userdel', '-r', username])
+
+
+def lock_user(username):
+    subprocess.run(['sudo', 'passwd', '-l', username])
+
+
+def unlock_user(username):
+    subprocess.run(['sudo', 'passwd', '-u', username])
+
+
+def input_text(stdscr, prompt):
+    curses.echo()
+    stdscr.addstr(prompt)
     stdscr.refresh()
-    while True:
-        key = stdscr.getch()
-        if key == 10:
-            state_setter(state)
-            break
+    input_str = stdscr.getstr().decode("utf-8")
+    curses.noecho()
+    return input_str
 
 
-def show_menu(stdscr, options, **kwargs):
-    current_option = 0
-    max_option_length = max(len(option[0]) for option in options)
+def show_user_table(stdscr, users, current_selection):
+    stdscr.clear()
 
-    if kwargs.get("extra_padding"):
-        ext_padding = kwargs.get("extra_padding")
+    table = [
+        ["No.", "Username", "UID", "Full Name", "Locked"],
+        *[[str(idx + 1), user.username, user.uid, user.full_name, "Locked" if user.is_locked else "Unlocked"] for
+          idx, user in enumerate(users)]
+    ]
+
+    for i, (idx, username, uid, f_n, locked) in enumerate(table):
+        stdscr.addstr(i, 0, f"{idx:2} {username:10} {uid:5} {f_n:20} {locked}")
+
+    for idx, user in enumerate(users):
+        locked_status = "Locked" if user.is_locked else "Unlocked"
+        line = f"{idx + 1}. {user.username:10} {user.uid:5} {user.full_name:20} {locked_status}"
+
+        if idx == current_selection:
+            stdscr.addstr(idx + 1, 0, line, curses.A_REVERSE)
+        else:
+            stdscr.addstr(idx + 1, 0, line)
+
+    stdscr.refresh()
+
+
+def key_catcher(stdscr):
+    key = stdscr.getch()
+    if key == curses.KEY_UP:
+        return ProgramCodes.UP
+    elif key == curses.KEY_DOWN:
+        return ProgramCodes.DOWN
+    elif key == ord("q") or key == ord("Q"):
+        return ProgramCodes.EXIT
+    elif key == ord("n") or key == ord("N"):
+        return ProgramCodes.ADD_USER
+    elif key == ord("d") or key == ord("D"):
+        return ProgramCodes.DELETE_USER
+    elif key == ord("l") or key == ord("L"):
+        return ProgramCodes.LOCK_USER
+    elif key == ord("u") or key == ord("U"):
+        return ProgramCodes.UNLOCK_USER
     else:
-        ext_padding = 0
-
-    while True:
-        for i, (option, _) in enumerate(options):
-            padding = " " * ((max_option_length - len(option)) + 2)
-            if i == current_option:
-                stdscr.addstr(
-                    i + MENU_DOWN_SHIFT + ext_padding,
-                    0,
-                    f"> {option}{padding}",
-                    curses.color_pair(1) | curses.A_REVERSE,
-                )
-            else:
-                stdscr.addstr(i + MENU_DOWN_SHIFT + ext_padding, 0, f"  {option}{padding}", curses.color_pair(1))
-
-        stdscr.refresh()
-
-        key = stdscr.getch()
-        if key == curses.KEY_UP and current_option > 0:
-            current_option -= 1
-        elif key == curses.KEY_DOWN and current_option < len(options) - 1:
-            current_option += 1
-        elif key == 10:
-            state_setter(options[current_option][1])
-            break
+        return 0
 
 
-OPTIONS = {
-    "hello": [show_welcome_screen, "main"],
-    "main": [show_menu, [("Добавить пользователя", "add_user"), ("Просмотреть всех", "show_all_users"),
-                         ("Выйти из программы", "exit")]],
-    "add_user": [lambda _, state: state_setter(state), "exit"],
-    "show_all_users": [lambda _, state: state_setter(state), "exit"]
-}
+def show_commands(stdscr, height):
+    commands = "[Q] Exit | [N] Add User | [D] Delete User | [L] Lock User | [U] Unlock User"
+    stdscr.addstr(height - 1, 0, commands, curses.A_BOLD)
 
 
-def show_canvas(stdout, extension, *args, **kwargs):
-    stdout.clear()
-    height, width = stdout.getmaxyx()
-    stdout.addstr(0, width - len(RUNNING_TITLE) - 2, RUNNING_TITLE, curses.A_BOLD | curses.color_pair(1))
-    extension(stdout, *args, **kwargs)
-
-
-def main(stdout):
+def main(stdscr):
     curses.start_color()
     curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
-    height, width = stdout.getmaxyx()
     curses.curs_set(0)
-    curses.resizeterm(20, width)
 
+    users = get_all_users()
+    current_option = 0
     while True:
-        if state_getter() == "exit":
-            break
+        height, width = stdscr.getmaxyx()
 
-        show_canvas(stdout, *OPTIONS[state_getter()])
+        show_user_table(stdscr, users, current_option)
+        show_commands(stdscr, height)
+
+        key = key_catcher(stdscr)
+        if key == ProgramCodes.EXIT:
+            break
+        elif key == ProgramCodes.ADD_USER:
+            username = input_text(stdscr, "Enter username: ")
+            full_name = input_text(stdscr, "Enter full name: ")
+            add_user(username, full_name)
+            users = get_all_users()
+        elif key == ProgramCodes.DELETE_USER:
+            delete_user(users[current_option].username)
+            users = get_all_users()
+            current_option = min(current_option, len(users) - 1)
+        elif key == ProgramCodes.LOCK_USER:
+            lock_user(users[current_option].username)
+            users = get_all_users()
+        elif key == ProgramCodes.UNLOCK_USER:
+            unlock_user(users[current_option].username)
+            users = get_all_users()
+        elif key == ProgramCodes.UP and current_option > 0:
+            current_option -= 1
+        elif key == ProgramCodes.DOWN and current_option < len(users) - 1:
+            current_option += 1
 
 
 if __name__ == "__main__":
     curses.wrapper(main)
+    subprocess.run("clear", subprocess.PIPE)
