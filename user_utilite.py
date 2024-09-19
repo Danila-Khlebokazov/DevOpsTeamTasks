@@ -45,9 +45,26 @@ def add_user(username, full_name):
     subprocess.run(['sudo', 'useradd', '-c', full_name, username])
     subprocess.run(['sudo', 'passwd', username])
 
+def confirm_action(stdscr, message) -> bool:
+    curses.echo()
+    stdscr.addstr(0, 0, message + " (y/n): ")
+    stdscr.refresh()
+    response = stdscr.getstr().decode("utf-8").lower()
+    curses.noecho()
+    return response == "y"
 
-def delete_user(username):
-    subprocess.run(['sudo', 'userdel', '-r', username])
+def delete_user(username, stdscr):
+    stdscr.clear()
+    message = f"Are you sure that you want to delete this user? '{username}' ?"
+
+    if confirm_action(stdscr, message):
+        subprocess.run(['sudo', 'userdel', '-r', username], stderr=subprocess.DEVNULL)
+        stdscr.addstr(1, 0, f"User with '{username}' has been successfully deleted, press any key to continue")
+    else:
+        stdscr.addstr(1, 0, f"User deletion cancelled, press any key to continue")
+    
+    stdscr.refresh()
+    stdscr.getch()
 
 
 def lock_user(username):
@@ -138,7 +155,7 @@ def main(stdscr):
             add_user(username, full_name)
             users = get_all_users()
         elif key == ProgramCodes.DELETE_USER:
-            delete_user(users[current_option].username)
+            delete_user(users[current_option].username, stdscr)
             users = get_all_users()
             current_option = min(current_option, len(users) - 1)
         elif key == ProgramCodes.LOCK_USER:
