@@ -155,12 +155,12 @@ def key_catcher(stdscr):
         return ProgramCodes.LEFT
     elif key == curses.KEY_RIGHT:
         return ProgramCodes.RIGHT
+    elif key == curses.KEY_BACKSPACE:
+        return ProgramCodes.DELETE_USER
     elif key == ord("q") or key == ord("Q"):
         return ProgramCodes.EXIT
     elif key == ord("n") or key == ord("N"):
         return ProgramCodes.ADD_USER
-    elif key == ord("d") or key == ord("D"):
-        return ProgramCodes.DELETE_USER
     elif key == ord("l") or key == ord("L"):
         return ProgramCodes.LOCK_USER
     elif key == ord("u") or key == ord("U"):
