@@ -1,6 +1,7 @@
 import curses
 from collections import namedtuple
 import subprocess
+import math
 
 PROGRAM_NAME = "USER MANAGER INTERFACE"
 VERSION = "0.2.0"
@@ -14,6 +15,8 @@ User = namedtuple("User", ["username", "uid", "full_name", "is_locked"])
 class ProgramCodes:
     UP = 3
     DOWN = 4
+    LEFT = 5
+    RIGHT = 6
     ADD_USER = 7
     DELETE_USER = 8
     LOCK_USER = 9
@@ -83,20 +86,24 @@ def input_text(stdscr, prompt):
     curses.noecho()
     return input_str
 
-
-def show_user_table(stdscr, users, current_selection):
+# TODO id on the next pages should be fixed
+def show_user_table(stdscr, users, current_selection, current_page, total_pages, page_size):
     stdscr.clear()
+    height, width = stdscr.getmaxyx()
+    start = (current_page - 1) * page_size
+    page_users = users[start:start + page_size]
+    
 
     table = [
         ["No.", "Username", "UID", "Full Name", "Locked"],
-        *[[str(idx + 1), user.username, user.uid, user.full_name, "Locked" if user.is_locked else "Unlocked"] for
-          idx, user in enumerate(users)]
+        *[[str(idx + start + 1), user.username, user.uid, user.full_name, "Locked" if user.is_locked else "Unlocked"] for
+          idx, user in enumerate(page_users)]
     ]
 
     for i, (idx, username, uid, f_n, locked) in enumerate(table):
         stdscr.addstr(i, 0, f"{idx:2} {username:10} {uid:5} {f_n:20} {locked}")
 
-    for idx, user in enumerate(users):
+    for idx, user in enumerate(page_users):
         locked_status = "Locked" if user.is_locked else "Unlocked"
         line = f"{idx + 1}. {user.username:10} {user.uid:5} {user.full_name:20} {locked_status}"
 
@@ -104,6 +111,9 @@ def show_user_table(stdscr, users, current_selection):
             stdscr.addstr(idx + 1, 0, line, curses.A_REVERSE)
         else:
             stdscr.addstr(idx + 1, 0, line)
+
+    page_number = f"Page {current_page}/{total_pages}"
+    stdscr.addstr(height - 3, (width - len(page_number)) // 2, page_number)
 
     stdscr.refresh()
 
@@ -114,6 +124,10 @@ def key_catcher(stdscr):
         return ProgramCodes.UP
     elif key == curses.KEY_DOWN:
         return ProgramCodes.DOWN
+    elif key == curses.KEY_LEFT:
+        return ProgramCodes.LEFT
+    elif key == curses.KEY_RIGHT:
+        return ProgramCodes.RIGHT
     elif key == ord("q") or key == ord("Q"):
         return ProgramCodes.EXIT
     elif key == ord("n") or key == ord("N"):
@@ -129,8 +143,8 @@ def key_catcher(stdscr):
 
 
 def show_commands(stdscr, height):
-    commands = "[Q] Exit | [N] Add User | [D] Delete User | [L] Lock User | [U] Unlock User"
-    stdscr.addstr(height - 1, 0, commands, curses.A_BOLD)
+    commands = "[LEFT] Prev Page | [RIGHT] Next Page | [UP/DOWN] Navigate | [N] Add User | [Backspace] Delete User | [L] Lock | [U] Unlock | [Q] Quit"
+    stdscr.addstr(height - 1, 0, commands[:stdscr.getmaxyx()[1]-1], curses.A_BOLD)
 
 
 def main(stdscr):
@@ -140,22 +154,26 @@ def main(stdscr):
 
     users = get_all_users()
     current_option = 0
+    current_page = 1
+    page_size = stdscr.getmaxyx()[0] - 4
+    total_pages = math.ceil(len(users) / page_size)
     while True:
         height, width = stdscr.getmaxyx()
 
-        show_user_table(stdscr, users, current_option)
+        show_user_table(stdscr, users, current_option, current_page, total_pages, page_size)
         show_commands(stdscr, height)
 
         key = key_catcher(stdscr)
         if key == ProgramCodes.EXIT:
             break
+        # FIXME ui bug
         elif key == ProgramCodes.ADD_USER:
             username = input_text(stdscr, "Enter username: ")
             full_name = input_text(stdscr, "Enter full name: ")
             add_user(username, full_name)
             users = get_all_users()
         elif key == ProgramCodes.DELETE_USER:
-            delete_user(users[current_option].username, stdscr)
+            delete_user(users[(current_page - 1) * page_size + current_option].username, stdscr)
             users = get_all_users()
             current_option = min(current_option, len(users) - 1)
         elif key == ProgramCodes.LOCK_USER:
@@ -164,10 +182,26 @@ def main(stdscr):
         elif key == ProgramCodes.UNLOCK_USER:
             unlock_user(users[current_option].username)
             users = get_all_users()
-        elif key == ProgramCodes.UP and current_option > 0:
-            current_option -= 1
+        elif key == ProgramCodes.UP:
+            if current_option > 0:
+                current_option -= 1
+            else:
+                if current_page > 1:
+                    current_page -= 1
+                    current_option = page_size - 1
         elif key == ProgramCodes.DOWN and current_option < len(users) - 1:
-            current_option += 1
+            if current_option < min(page_size - 1, len(users) - (current_page - 1) * page_size - 1):           
+                current_option += 1
+            else:
+                if current_page < total_pages:
+                    current_option = 0
+                    current_page += 1
+        elif key == ProgramCodes.LEFT and current_page > 1:
+            current_page -= 1
+            current_option = 0
+        elif key == ProgramCodes.RIGHT and current_page < total_pages:
+            current_page += 1
+            current_option = 0 
 
 
 if __name__ == "__main__":
