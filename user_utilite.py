@@ -101,16 +101,16 @@ def unlock_user(username):
     subprocess.run(['sudo', 'passwd', '-u', username])
 
 
-def input_text(stdscr, prompt, height):
+def input_text(stdscr, prompt, height, width):
     curses.echo()
     stdscr.addstr(height - 2, 0, prompt)
     stdscr.refresh()
     input_str = stdscr.getstr().decode("utf-8")
     curses.noecho()
+    stdscr.addstr(height - 2, 0, " " * width)
     return input_str
 
 
-# TODO id on the next pages should be fixed
 def show_user_table(stdscr, users, current_selection, current_page, total_pages, page_size):
     stdscr.clear()
     height, width = stdscr.getmaxyx()
@@ -170,7 +170,7 @@ def key_catcher(stdscr):
 
 
 def show_commands(stdscr, height):
-    commands = "[LEFT/RIGTH] Prev/Next Page | [UP/DOWN] Navigate | [N] Add User | [D] Delete User | [L] Lock | [U] Unlock | [Q] Quit"
+    commands = "[LEFT/RIGTH] Prev/Next Page | [UP/DOWN] Navigate | [N] Add User | [BACKSPACE] Delete User | [L] Lock | [U] Unlock | [Q] Quit"
     stdscr.addstr(height - 1, 0, commands[:stdscr.getmaxyx()[1] - 1], curses.A_BOLD)
 
 
@@ -193,16 +193,15 @@ def main(stdscr):
         key = key_catcher(stdscr)
         if key == ProgramCodes.EXIT:
             break
-        # FIXME ui bug
         elif key == ProgramCodes.ADD_USER:
-            username = input_text(stdscr, "Enter username: ", height)
+            username = input_text(stdscr, "Enter username: ", height, width)
             if " " in username:
                 stdscr.addstr(height - 2, 0, "Username cannot contain spaces, press any key to continue")
                 stdscr.getch()
                 continue
-            full_name = input_text(stdscr, "Enter full name: ", height)
-            passwrd = input_text(stdscr, "Enter new password: ", height)
-            passwrd_2 = input_text(stdscr, "Enter new password (again): ", height)
+            full_name = input_text(stdscr, "Enter full name: ", height, width)
+            passwrd = input_text(stdscr, "Enter new password: ", height, width)
+            passwrd_2 = input_text(stdscr, "Enter new password (again): ", height, width)
             if passwrd != passwrd_2:
                 stdscr.addstr(height - 2, 0, "Passwords do not match, press any key to continue")
                 stdscr.getch()
