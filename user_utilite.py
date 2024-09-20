@@ -88,12 +88,13 @@ def lock_user(stdscr, username):
     message = f"Are you sure that you want to LOCK this user? '{username}' ?"
 
     if confirm_action(stdscr, message):
-        subprocess.run(['sudo', 'passwd', '-l', username])
+        subprocess.run(['sudo', 'passwd', '-l', username], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         stdscr.addstr(1, 0, f"User with '{username}' has been successfully locked, press any key to continue")
     else:
         stdscr.addstr(1, 0, f"User locking cancelled, press any key to continue")
 
     stdscr.refresh()
+    stdscr.getch()
 
 
 def unlock_user(username):
@@ -108,31 +109,35 @@ def input_text(stdscr, prompt, height):
     curses.noecho()
     return input_str
 
+
 # TODO id on the next pages should be fixed
 def show_user_table(stdscr, users, current_selection, current_page, total_pages, page_size):
     stdscr.clear()
     height, width = stdscr.getmaxyx()
     start = (current_page - 1) * page_size
     page_users = users[start:start + page_size]
-    
 
     table = [
         ["No.", "Username", "UID", "Full Name", "Locked"],
-        *[[str(idx + start + 1), user.username, user.uid, user.full_name, "Locked" if user.is_locked else "Unlocked"] for
+        *[[str(idx + start + 1), user.username, user.uid, user.full_name, "Locked" if user.is_locked else "Unlocked"]
+          for
           idx, user in enumerate(page_users)]
     ]
+    max_size_columns = [max(len(str(row[i])) for row in table) for i in range(len(table[0]))]
 
-    for i, (idx, username, uid, f_n, locked) in enumerate(table):
-        stdscr.addstr(i, 0, f"{idx:3} {username:10} {uid:5} {f_n:20} {locked}")
+    for i, (idx, username, uid, full_name, locked) in enumerate(table):
+        line = "| "
+        for j, col in enumerate([idx, username, uid, full_name, locked]):
+            line += col.ljust(max_size_columns[j] + 2) + " |"
 
-    for idx, user in enumerate(page_users):
-        locked_status = "Locked" if user.is_locked else "Unlocked"
-        line = f"{idx + 1:<3} {user.username:<10} {user.uid:<5} {user.full_name:<20} {locked_status}"
+        if i == 0:
+            stdscr.addstr(i + 1, 0, line, curses.A_BOLD)
+            continue
 
-        if idx == current_selection:
-            stdscr.addstr(idx + 1, 0, line, curses.A_REVERSE)
+        if i == current_selection + 1:
+            stdscr.addstr(i + 1, 0, line, curses.A_REVERSE)
         else:
-            stdscr.addstr(idx + 1, 0, line)
+            stdscr.addstr(i + 1, 0, line)
 
     page_number = f"Page {current_page}/{total_pages}"
     stdscr.addstr(height - 3, (width - len(page_number)) // 2, page_number)
@@ -165,8 +170,8 @@ def key_catcher(stdscr):
 
 
 def show_commands(stdscr, height):
-    commands = "[LEFT] Prev Page | [RIGHT] Next Page | [UP/DOWN] Navigate | [N] Add User | [Backspace] Delete User | [L] Lock | [U] Unlock | [Q] Quit"
-    stdscr.addstr(height - 1, 0, commands[:stdscr.getmaxyx()[1]-1], curses.A_BOLD)
+    commands = "[LEFT/RIGTH] Prev/Next Page | [UP/DOWN] Navigate | [N] Add User | [D] Delete User | [L] Lock | [U] Unlock | [Q] Quit"
+    stdscr.addstr(height - 1, 0, commands[:stdscr.getmaxyx()[1] - 1], curses.A_BOLD)
 
 
 def main(stdscr):
@@ -191,12 +196,16 @@ def main(stdscr):
         # FIXME ui bug
         elif key == ProgramCodes.ADD_USER:
             username = input_text(stdscr, "Enter username: ", height)
+            if " " in username:
+                stdscr.addstr(height - 2, 0, "Username cannot contain spaces, press any key to continue")
+                stdscr.getch()
+                continue
             full_name = input_text(stdscr, "Enter full name: ", height)
             passwrd = input_text(stdscr, "Enter new password: ", height)
             passwrd_2 = input_text(stdscr, "Enter new password (again): ", height)
             if passwrd != passwrd_2:
-                stdscr.addstr(height - 3, 0, "Passwords do not match, press any key to continue")
-                stdscr.refresh()
+                stdscr.addstr(height - 2, 0, "Passwords do not match, press any key to continue")
+                stdscr.getch()
                 continue
             add_user(username, full_name, passwrd)
             users = get_all_users()
@@ -218,7 +227,7 @@ def main(stdscr):
                     current_page -= 1
                     current_option = page_size - 1
         elif key == ProgramCodes.DOWN and current_option < len(users) - 1:
-            if current_option < min(page_size - 1, len(users) - (current_page - 1) * page_size - 1):           
+            if current_option < min(page_size - 1, len(users) - (current_page - 1) * page_size - 1):
                 current_option += 1
             else:
                 if current_page < total_pages:
@@ -229,7 +238,7 @@ def main(stdscr):
             current_option = 0
         elif key == ProgramCodes.RIGHT and current_page < total_pages:
             current_page += 1
-            current_option = 0 
+            current_option = 0
 
 
 if __name__ == "__main__":
