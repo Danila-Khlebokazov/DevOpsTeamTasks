@@ -171,7 +171,7 @@ def key_catcher(stdscr):
 
 
 def show_commands(stdscr, height):
-    commands = "[LEFT/RIGTH] Prev/Next Page | [UP/DOWN] Navigate | [N] Add User | [BACKSPACE] Delete User | [L] Lock | [U] Unlock | [Q] Quit"
+    commands = "[←/→] Prev/Next Page | [↑/↓] Navigate | [N] Add User | [BACKSPACE] Delete User | [L] Lock | [U] Unlock | [Q] Quit"
     stdscr.addstr(height - 1, 0, commands[:stdscr.getmaxyx()[1] - 1], curses.A_BOLD)
 
 def update_table(stdscr, users):
