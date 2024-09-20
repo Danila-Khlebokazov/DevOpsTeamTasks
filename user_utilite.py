@@ -7,6 +7,8 @@ PROGRAM_NAME = "USER MANAGER INTERFACE"
 VERSION = "0.2.0"
 AUTHORS = "D_K"
 
+CURRENT_USER_NAME = None
+
 RUNNING_TITLE = f"{PROGRAM_NAME} v.{VERSION} // {AUTHORS}"
 
 User = namedtuple("User", ["username", "uid", "full_name", "is_locked"])
@@ -26,11 +28,10 @@ class ProgramCodes:
 
 def get_all_users():
     users = []
-    result = subprocess.run(['cat', '/etc/passwd'], stdout=subprocess.PIPE)
+    result = subprocess.run(['sudo', 'cat', '/etc/passwd'], stdout=subprocess.PIPE)
     for line in list(filter(lambda x: ":" in x, result.stdout.decode().splitlines())):
         parts = line.split(':')
-        print(parts)
-        if int(parts[2]) >= 1000:
+        if int(parts[2]) >= 1000 and parts[0] != "nobody":
             username = parts[0]
             uid = parts[2]
             full_name = parts[4]
@@ -40,13 +41,13 @@ def get_all_users():
 
 
 def check_user_locked(username):
-    result = subprocess.run(['passwd', '--status', username], stdout=subprocess.PIPE)
+    result = subprocess.run(['sudo', 'passwd', '--status', username], stdout=subprocess.PIPE)
     return 'L' in result.stdout.decode()
 
 
-def add_user(username, full_name):
-    subprocess.run(['sudo', 'useradd', '-c', full_name, username])
-    subprocess.run(['sudo', 'passwd', username])
+def add_user(username, full_name, password):
+    subprocess.run(['sudo', 'useradd', '-c', full_name, "-p", password, username])
+
 
 def confirm_action(stdscr, message) -> bool:
     curses.echo()
@@ -56,8 +57,14 @@ def confirm_action(stdscr, message) -> bool:
     curses.noecho()
     return response == "y"
 
+
 def delete_user(username, stdscr):
     stdscr.clear()
+    if username == CURRENT_USER_NAME:
+        stdscr.addstr(0, 0, "You cannot delete yourself, press any key to continue")
+        stdscr.refresh()
+        stdscr.getch()
+        return
     message = f"Are you sure that you want to delete this user? '{username}' ?"
 
     if confirm_action(stdscr, message):
@@ -65,22 +72,37 @@ def delete_user(username, stdscr):
         stdscr.addstr(1, 0, f"User with '{username}' has been successfully deleted, press any key to continue")
     else:
         stdscr.addstr(1, 0, f"User deletion cancelled, press any key to continue")
-    
+
     stdscr.refresh()
     stdscr.getch()
 
 
-def lock_user(username):
-    subprocess.run(['sudo', 'passwd', '-l', username])
+def lock_user(stdscr, username):
+    stdscr.clear()
+    if username == CURRENT_USER_NAME:
+        stdscr.addstr(0, 0, "You cannot lock yourself, press any key to continue")
+        stdscr.refresh()
+        stdscr.getch()
+        return
+
+    message = f"Are you sure that you want to LOCK this user? '{username}' ?"
+
+    if confirm_action(stdscr, message):
+        subprocess.run(['sudo', 'passwd', '-l', username])
+        stdscr.addstr(1, 0, f"User with '{username}' has been successfully locked, press any key to continue")
+    else:
+        stdscr.addstr(1, 0, f"User locking cancelled, press any key to continue")
+
+    stdscr.refresh()
 
 
 def unlock_user(username):
     subprocess.run(['sudo', 'passwd', '-u', username])
 
 
-def input_text(stdscr, prompt):
+def input_text(stdscr, prompt, height):
     curses.echo()
-    stdscr.addstr(prompt)
+    stdscr.addstr(height - 2, 0, prompt)
     stdscr.refresh()
     input_str = stdscr.getstr().decode("utf-8")
     curses.noecho()
@@ -168,16 +190,22 @@ def main(stdscr):
             break
         # FIXME ui bug
         elif key == ProgramCodes.ADD_USER:
-            username = input_text(stdscr, "Enter username: ")
-            full_name = input_text(stdscr, "Enter full name: ")
-            add_user(username, full_name)
+            username = input_text(stdscr, "Enter username: ", height)
+            full_name = input_text(stdscr, "Enter full name: ", height)
+            passwrd = input_text(stdscr, "Enter new password: ", height)
+            passwrd_2 = input_text(stdscr, "Enter new password (again): ", height)
+            if passwrd != passwrd_2:
+                stdscr.addstr(height - 3, 0, "Passwords do not match, press any key to continue")
+                stdscr.refresh()
+                continue
+            add_user(username, full_name, passwrd)
             users = get_all_users()
         elif key == ProgramCodes.DELETE_USER:
             delete_user(users[(current_page - 1) * page_size + current_option].username, stdscr)
             users = get_all_users()
             current_option = min(current_option, len(users) - 1)
         elif key == ProgramCodes.LOCK_USER:
-            lock_user(users[current_option].username)
+            lock_user(stdscr, users[current_option].username)
             users = get_all_users()
         elif key == ProgramCodes.UNLOCK_USER:
             unlock_user(users[current_option].username)
@@ -205,5 +233,7 @@ def main(stdscr):
 
 
 if __name__ == "__main__":
+    CURRENT_USER_NAME = subprocess.run("whoami", stdout=subprocess.PIPE).stdout.decode().strip()
+    subprocess.run("sudo -l", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
     curses.wrapper(main)
     subprocess.run("clear", subprocess.PIPE)
