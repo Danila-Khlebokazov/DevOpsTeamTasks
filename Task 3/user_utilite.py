@@ -2,6 +2,7 @@ import curses
 from collections import namedtuple
 import subprocess
 import math
+from urllib.parse import uses_relative
 
 PROGRAM_NAME = "USER MANAGER INTERFACE"
 VERSION = "0.2.0"
@@ -173,6 +174,9 @@ def show_commands(stdscr, height):
     commands = "[LEFT/RIGTH] Prev/Next Page | [UP/DOWN] Navigate | [N] Add User | [BACKSPACE] Delete User | [L] Lock | [U] Unlock | [Q] Quit"
     stdscr.addstr(height - 1, 0, commands[:stdscr.getmaxyx()[1] - 1], curses.A_BOLD)
 
+def update_table(stdscr, users):
+    page_size = stdscr.getmaxyx()[0] - 4
+    return page_size, math.ceil(len(users) / page_size)
 
 def main(stdscr):
     curses.start_color()
@@ -199,6 +203,11 @@ def main(stdscr):
                 stdscr.addstr(height - 2, 0, "Username cannot contain spaces, press any key to continue")
                 stdscr.getch()
                 continue
+            if username in [user.username for user in users]:
+                stdscr.addstr(height - 2, 0, "Username already exists, press any key to continue")
+                stdscr.getch()
+                continue
+
             full_name = input_text(stdscr, "Enter full name: ", height, width)
             passwrd = input_text(stdscr, "Enter new password: ", height, width)
             passwrd_2 = input_text(stdscr, "Enter new password (again): ", height, width)
@@ -208,10 +217,14 @@ def main(stdscr):
                 continue
             add_user(username, full_name, passwrd)
             users = get_all_users()
+            page_size, total_pages = update_table(stdscr, users)
         elif key == ProgramCodes.DELETE_USER:
             delete_user(users[(current_page - 1) * page_size + current_option].username, stdscr)
             users = get_all_users()
             current_option = min(current_option, len(users) - 1)
+            page_size, total_pages = update_table(stdscr, users)
+            if current_page>total_pages:
+                current_page-=1
         elif key == ProgramCodes.LOCK_USER:
             lock_user(stdscr, users[current_option].username)
             users = get_all_users()
