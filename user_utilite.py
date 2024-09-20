@@ -123,11 +123,11 @@ def show_user_table(stdscr, users, current_selection, current_page, total_pages,
     ]
 
     for i, (idx, username, uid, f_n, locked) in enumerate(table):
-        stdscr.addstr(i, 0, f"{idx:2} {username:10} {uid:5} {f_n:20} {locked}")
+        stdscr.addstr(i, 0, f"{idx:3} {username:10} {uid:5} {f_n:20} {locked}")
 
     for idx, user in enumerate(page_users):
         locked_status = "Locked" if user.is_locked else "Unlocked"
-        line = f"{idx + 1}. {user.username:10} {user.uid:5} {user.full_name:20} {locked_status}"
+        line = f"{idx + 1:<3} {user.username:<10} {user.uid:<5} {user.full_name:<20} {locked_status}"
 
         if idx == current_selection:
             stdscr.addstr(idx + 1, 0, line, curses.A_REVERSE)
