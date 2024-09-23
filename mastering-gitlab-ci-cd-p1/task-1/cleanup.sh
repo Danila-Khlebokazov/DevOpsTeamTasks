@@ -12,4 +12,4 @@ sudo gitlab-runner uninstall
 
 sudo userdel -r gitlab-runner
 
-sudo systemctl kill gitlab-runner-active
+echo "" | crontab
