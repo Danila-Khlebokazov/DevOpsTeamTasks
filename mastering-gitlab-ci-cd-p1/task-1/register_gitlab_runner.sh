@@ -23,6 +23,7 @@ while test $# -gt 0; do
       exit 0
       ;;
     --token)
+      shift
       token=`echo $1 | sed -e 's/^[^=]*=//g'`
       sudo gitlab-runner register \
         --non-interactive \
@@ -30,6 +31,7 @@ while test $# -gt 0; do
         --token "$token" \
         --executor "shell" \
         --description "shell-runner"
+      shift
       ;;
     *)
       echo "No token is specified, you should specify a --token"
