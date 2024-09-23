@@ -1,5 +1,7 @@
 #! /bin/bash
 
+# reference https://docs.gitlab.com/runner/install/linux-manually.html
+
 # Get Architecture
 arch=$(uname -m)
 
@@ -32,7 +34,7 @@ sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/
 sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
 
 # Adding crontab
-crontab -e <<EOF
+crontab <<EOF
 @reboot /usr/local/bin/gitlab-runner start
 EOF
 
