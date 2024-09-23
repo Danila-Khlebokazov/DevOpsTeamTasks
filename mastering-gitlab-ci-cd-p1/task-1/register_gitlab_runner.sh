@@ -27,7 +27,7 @@ while test $# -gt 0; do
       sudo gitlab-runner register \
         --non-interactive \
         --url "https://gitlab.com/" \
-        --token "$RUNNER_TOKEN" \
+        --token "$token" \
         --executor "shell" \
         --description "shell-runner"
       ;;
