@@ -2,7 +2,7 @@
 
 # reference https://docs.gitlab.com/runner/register/index.html
 
-while getopts 't:h:' flag; do
+while getopts t:h: flag; do
   case "$flag" in
     h)
       echo "[options]"
