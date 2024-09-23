@@ -20,7 +20,7 @@ while getopts ':ht' flag; do
       ;;
     t)
       token="${OPTARG}"
-      echo $token
+      echo "12312332: $token"
       sudo gitlab-runner register --non-interactive --url "https://gitlab.com/" --token "$token" --executor "shell" --description "shell-runner"
       ;;
     \?)
