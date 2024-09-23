@@ -22,9 +22,13 @@ while getopts ':ht' flag; do
       token="${OPTARG}"
       sudo gitlab-runner register --non-interactive --url "https://gitlab.com/" --token "$token" --executor "shell" --description "shell-runner"
       ;;
-    *)
-      echo "No token is specified, you should specify a --token"
-      break
-      ;;
+    \?)
+			echo "Invalid option: -$OPTARG" >&2
+			exit 1
+		;;
+		:)
+			echo "Option -$OPTARG requires an argument (getopts)" >&2
+			exit 1
+		;;
   esac
 done
