@@ -25,12 +25,7 @@ while test $# -gt 0; do
     --token)
       shift
       token=$(echo $1 | sed -e 's/^[^=]*=//g')
-      sudo gitlab-runner register \
-        --non-interactive \
-        --url "https://gitlab.com/" \
-        --token "$token" \
-        --executor "shell" \
-        --description "shell-runner"
+      sudo gitlab-runner register --non-interactive --url "https://gitlab.com/" --token "$token" --executor "shell" --description "shell-runner"
       shift
       ;;
     *)
