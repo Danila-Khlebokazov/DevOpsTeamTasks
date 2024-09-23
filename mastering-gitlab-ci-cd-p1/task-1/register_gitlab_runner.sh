@@ -13,22 +13,6 @@ while getopts 't:h:' flag; do
     t)
       token="${OPTARG}"
       sudo gitlab-runner register --non-interactive --url "https://gitlab.com/" --token "$token" --executor "shell" --description "shell-runner"
-      sudo touch /etc/systemd/system/gitlab-runner-active.service
-      sudo echo << EOF > /etc/systemd/system/gitlab-runner-active.service
-[Unit]
-Description=GitLab Runner
-After=gitlab-runner.service
-
-[Service]
-ExecStart=/usr/local/bin/gitlab-runner run
-WorkingDirectory=/home/gitlab-runner
-Restart=always
-User=gitlab-runner
-
-[Install]
-WantedBy=multi-user.target
-EOF
-      sudo systemctl start gitlab-runner-active
       ;;
     \?)
 			echo "Invalid option: -$OPTARG" >&2
