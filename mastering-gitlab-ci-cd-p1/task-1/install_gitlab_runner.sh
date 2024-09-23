@@ -35,6 +35,5 @@ sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab
 
 # Starting with boot
 sudo systemctl enable gitlab-runner
-
-# Running service if needed
+# Running service
 sudo gitlab-runner start
