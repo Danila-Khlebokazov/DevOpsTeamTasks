@@ -10,4 +10,4 @@ sudo gitlab-runner unregister --all-runners
 # Remove the gitlab runner
 sudo gitlab-runner uninstall
 
-sudo systemctl disable gitlab-runner
+sudo userdel -r gitlab-runner
