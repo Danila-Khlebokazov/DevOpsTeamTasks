@@ -1,0 +1,1 @@
+sha256sum $1/*.jpg -b | awk 'BEGIN{FS="*"} {if (cnts[$1]++) {print "\"" $2 "\""; print "DELETE " $2 > "/dev/stderr"}}' | xargs -r rm
