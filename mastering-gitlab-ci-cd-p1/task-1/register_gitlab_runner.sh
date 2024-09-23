@@ -10,7 +10,7 @@
 #  --executor "shell" \
 #  --description "shell-runner"
 
-while getopts 'h:t:' flag; do
+while getopts 't:h:' flag; do
   case "$flag" in
     h)
       echo "[options]"
