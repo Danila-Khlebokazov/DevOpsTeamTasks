@@ -10,7 +10,7 @@
 #  --executor "shell" \
 #  --description "shell-runner"
 
-while getopts ':ht' flag; do
+while getopts 'h:t:' flag; do
   case "$flag" in
     h)
       echo "[options]"
@@ -20,7 +20,6 @@ while getopts ':ht' flag; do
       ;;
     t)
       token="${OPTARG}"
-      echo "12312332: $token"
       sudo gitlab-runner register --non-interactive --url "https://gitlab.com/" --token "$token" --executor "shell" --description "shell-runner"
       ;;
     \?)
