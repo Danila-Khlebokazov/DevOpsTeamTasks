@@ -2,20 +2,12 @@
 
 # reference https://docs.gitlab.com/runner/register/index.html
 
-# Register GitLab Runner
-#sudo gitlab-runner register \
-#  --non-interactive \
-#  --url "https://gitlab.com/" \
-#  --token "$RUNNER_TOKEN" \
-#  --executor "shell" \
-#  --description "shell-runner"
-
 while getopts 't:h:' flag; do
   case "$flag" in
     h)
       echo "[options]"
       echo "-h, --help                show brief help"
-      echo "--token                   specify a runner token from GitLab"
+      echo "-t                        specify a runner token from GitLab"
       exit 0
       ;;
     t)
