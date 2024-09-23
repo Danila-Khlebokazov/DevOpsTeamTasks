@@ -14,7 +14,7 @@ while getopts 't:h:' flag; do
       token="${OPTARG}"
       sudo gitlab-runner register --non-interactive --url "https://gitlab.com/" --token "$token" --executor "shell" --description "shell-runner"
       sudo touch /etc/systemd/system/gitlab-runner-active.service
-      sudo echo > /etc/systemd/system/gitlab-runner-active.service << EOF
+      sudo cat > /etc/systemd/system/gitlab-runner-active.service << EOF
 [Unit]
 Description=GitLab Runner
 After=gitlab-runner.service
