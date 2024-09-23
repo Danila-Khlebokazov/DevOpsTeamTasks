@@ -33,10 +33,12 @@ sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/
 # Install
 sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
 
-# Adding crontab
-crontab <<EOF
-@reboot /usr/local/bin/gitlab-runner start
-EOF
+# Starting with boot
+sudo systemctl enable gitlab-runner
+# One of possible ways to start with boot
+# crontab <<EOF
+# @reboot /usr/local/bin/gitlab-runner start
+# EOF
 
 # Running service if needed
 sudo gitlab-runner start
