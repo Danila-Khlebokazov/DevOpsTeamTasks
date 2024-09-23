@@ -47,7 +47,8 @@ def check_user_locked(username):
 
 
 def add_user(username, full_name, password):
-    subprocess.run(['sudo', 'useradd', '-c', full_name, "-p", password, username])
+    subprocess.run(['sudo', 'useradd', '-m', '-c', full_name, username])
+    subprocess.run(['sudo', 'chpasswd'], input=f'{username}:{password}', text=True)
 
 
 def confirm_action(stdscr, message) -> bool:
