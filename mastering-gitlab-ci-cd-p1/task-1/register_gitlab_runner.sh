@@ -10,23 +10,17 @@
 #  --executor "shell" \
 #  --description "shell-runner"
 
-while test $# -gt 0; do
-  case "$1" in
-    -h|--help)
-      echo "$package - attempt to capture frames"
-      echo " "
-      echo "$package [options] application [arguments]"
-      echo " "
-      echo "options:"
+while getopts ':ht' flag; do
+  case "$flag" in
+    h)
+      echo "[options]"
       echo "-h, --help                show brief help"
       echo "--token                   specify a runner token from GitLab"
       exit 0
       ;;
-    --token)
-      shift
-      token=$(echo $1 | sed -e 's/^[^=]*=//g')
+    t)
+      token="${OPTARG}"
       sudo gitlab-runner register --non-interactive --url "https://gitlab.com/" --token "$token" --executor "shell" --description "shell-runner"
-      shift
       ;;
     *)
       echo "No token is specified, you should specify a --token"
