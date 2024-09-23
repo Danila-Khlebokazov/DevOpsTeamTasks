@@ -6,6 +6,8 @@ Create script to identify and remove duplicate image files in a given directory,
 image is retained. The files to be processed are stored in the duplicate_files.zip. Use of the uniq command is not
 allowed. Try to solve the task using a single line of Bash code.
 
+Idea: Using `sha256` hashing method to find hashes of all files, then delete file which hash already exists. Time and space complexity: `O(n)`
+Usage: Copy code to your `~/.bashrc$ file` Use command "remDuplicates {`\$Path`}" to delete all duplicates in directory {`\$Path`}, if empty it will be applies in current directory. 
 ### Task 2 - code [here](task-2%2Fexctarct_code.sh)
 
 Write a script that performs the following tasks. (only bash is allowed )
@@ -16,6 +18,7 @@ Write a script that performs the following tasks. (only bash is allowed )
    'CodeWord_21BD000001')
 4. Replace the code from step 2 with the new one and recreate the archive
 
+Idea: DFS search. Recursively search for desired file by unzipping zip files, then make desired change, zip unzipped files while returning back.
 ### Task 3 - code [here](task-3%2Fconfigure-ssh.sh)
 
 Create a script that configures SSH key-based authentication on a remote server. The script should automatically
@@ -25,6 +28,8 @@ Create a script that configures SSH key-based authentication on a remote server.
 3. Ensure the proper permissions and setup on the remote server for key-based
    authentication
    The script should handle all steps without any manual intervention, except for executing the script.
+
+Usage: copy code to your `.bashrc` file, now you can apply command `setup_ssh {user} {host}` to actually set up your ssh with linux based server. It will automatically create public and private keys, copy public key to server and apply `chmod` things. You just need to enter your password first time, then you can connect to your server without password. 
 
 ### Task 4
 
