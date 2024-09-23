@@ -13,8 +13,8 @@ while getopts t:h: flag; do
     t)
       token="${OPTARG}"
       sudo gitlab-runner register --non-interactive --url "https://gitlab.com/" --token "$token" --executor "shell" --description "shell-runner"
-      echo "@reboot nohup sudo gitlab-runner run &" | crontab
-      nohup sudo gitlab-runner run &
+      echo "@reboot sudo runuser -l gitlab-runner -c 'nohup gitlab-runner run &'" | crontab
+      sudo runuser -l gitlab-runner -c 'nohup gitlab-runner run &'
       ;;
     \?)
 			echo "Invalid option: -$OPTARG" >&2
