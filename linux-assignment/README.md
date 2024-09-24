@@ -45,10 +45,12 @@ execution (any other level of access for the user - must be justified ).
 Your application should start every time your system is launched and restart whenever application exits due to some
 errors.
 
-### Task 6
+### Task 6 [top-n-heaviest-files.sh](task-6%2Ftop-n-heaviest-files.sh)
 
 Write a script to find top-5 heaviest files in your /home directory in descending order, based on their size. Example
 for /Desktop
+
+Usage: `bash top-n-heaviest-files.sh 10` 10 is optional, default is 5
 
 ### Task 7
 
