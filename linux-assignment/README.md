@@ -45,7 +45,7 @@ execution (any other level of access for the user - must be justified ).
 Your application should start every time your system is launched and restart whenever application exits due to some
 errors.
 
-### Task 6 [top-n-heaviest-files.sh](task-6%2Ftop-n-heaviest-files.sh)
+### Task 6 - code [top-n-heaviest-files.sh](task-6%2Ftop-n-heaviest-files.sh)
 
 Write a script to find top-5 heaviest files in your /home directory in descending order, based on their size. Example
 for /Desktop
@@ -57,11 +57,13 @@ Usage: `bash top-n-heaviest-files.sh 10` 10 is optional, default is 5
 Write a script to assign default RW permissions for newly created files in the /home/logs directory for the user from
 Task 5.
 
-### Task 8
+### Task 8 - code [change-job-name.sh](task-8%2Fchange-job-name.sh)
 
 You are given a file - "example.nomad." Write a script that will change the job name (the part specified in parentheses,
 job "example") to any name that can be passed to the script. The changes should be applied to the original file -
 example.nomad
+
+Usage: `bash change-job-name.sh example.nomad "new-job-name"`
 
 ### Task 9
 
