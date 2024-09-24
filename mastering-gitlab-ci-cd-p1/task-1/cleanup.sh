@@ -14,4 +14,4 @@ sudo userdel -r gitlab-runner
 
 sudo rm -r /home/gitlab-runner
 
-echo "" | crontab
+sudo crontab -r

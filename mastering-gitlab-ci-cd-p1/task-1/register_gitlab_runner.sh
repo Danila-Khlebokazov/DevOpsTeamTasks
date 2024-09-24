@@ -13,7 +13,8 @@ while getopts t:h: flag; do
     t)
       token="${OPTARG}"
       sudo gitlab-runner register --non-interactive --url "https://gitlab.com/" --token "$token" --executor "shell" --description "shell-runner"
-      echo "@reboot nohup sudo gitlab-runner run &" | crontab
+      sudo gitlab-runner verify
+      echo "@reboot nohup gitlab-runner run &" | sudo crontab
       nohup sudo gitlab-runner run &
       exit 0
       ;;
