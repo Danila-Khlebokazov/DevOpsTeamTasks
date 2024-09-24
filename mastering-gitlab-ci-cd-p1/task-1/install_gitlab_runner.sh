@@ -33,8 +33,6 @@ sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/
 # Install
 sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
 
-sudo apt install gitlab-runner
-
 # Starting with boot
 sudo systemctl enable gitlab-runner
 # Running service
