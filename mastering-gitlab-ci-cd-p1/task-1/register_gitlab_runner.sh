@@ -12,9 +12,10 @@ while getopts t:h: flag; do
       ;;
     t)
       token="${OPTARG}"
-      gitlab-runner register --non-interactive --url "https://gitlab.com/" --token "$token" --executor "shell" --description "shell-runner"
-      echo "@reboot nohup sudo gitlab-runner run --user gitlab-runner --working-directory=/home/gitlab-runner --config=/etc/gitlab-runner/config.toml &" | crontab
-      nohup sudo gitlab-runner run --user gitlab-runner --working-directory=/home/gitlab-runner --config=/etc/gitlab-runner/config.toml &
+      sudo gitlab-runner register --non-interactive --url "https://gitlab.com/" --token "$token" --executor "shell" --description "shell-runner"
+      echo "@reboot nohup sudo gitlab-runner --user gitlab-runner --working-directory=/home/gitlab-runner --config=/etc/gitlab-runner/config.toml  run &" | crontab
+      nohup sudo gitlab-runner --user gitlab-runner --working-directory=/home/gitlab-runner --config=/etc/gitlab-runner/config.toml  run &
+      exit 0
       ;;
     \?)
 			echo "Invalid option: -$OPTARG" >&2
@@ -26,3 +27,5 @@ while getopts t:h: flag; do
 		;;
   esac
 done
+echo "Token were not provided. Please provide a token using -t option."
+exit 1
