@@ -14,8 +14,16 @@ while getopts t:h: flag; do
       token="${OPTARG}"
       sudo gitlab-runner register --non-interactive --url "https://gitlab.com/" --token "$token" --executor "shell" --description "shell-runner"
       sudo gitlab-runner verify
-      echo "@reboot nohup gitlab-runner run &" | sudo crontab
-      nohup sudo gitlab-runner run &
+
+      cat << EOF | sudo tee /home/gitlab-runner/.bash_logout
+# ~/.bash_logout: executed by bash(1) when login shell exits.
+
+# when leaving the console clear the screen to increase privacy
+
+#if [ "$SHLVL" = 1 ]; then
+#    [ -x /usr/bin/clear_console ] && /usr/bin/clear_console -q
+# fi
+EOF
       exit 0
       ;;
     \?)
