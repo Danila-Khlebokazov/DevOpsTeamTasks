@@ -2,6 +2,7 @@ import curses
 from collections import namedtuple
 import subprocess
 import math
+from subprocess import check_output
 from urllib.parse import uses_relative
 
 PROGRAM_NAME = "USER MANAGER INTERFACE"
@@ -70,7 +71,7 @@ def delete_user(username, stdscr):
     message = f"Are you sure that you want to delete this user? '{username}' ?"
 
     if confirm_action(stdscr, message):
-        subprocess.run(['sudo', 'userdel', '-r', username], stderr=subprocess.DEVNULL)
+        subprocess.run(['sudo', 'userdel', '-r', '-f',  username], stderr=subprocess.DEVNULL)
         stdscr.addstr(1, 0, f"User with '{username}' has been successfully deleted, press any key to continue")
     else:
         stdscr.addstr(1, 0, f"User deletion cancelled, press any key to continue")
