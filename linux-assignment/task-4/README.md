@@ -15,15 +15,13 @@ sudo nano /etc/logrotate.d/task4_logs
 Write the following inside `task4_logs`:
 ````
 /home/$USER/logs/app.log {
+    hourly
     size 1M
     rotate 3
     compress  
     notifempty
     su $USER $GROUP     # Replace $USER and $GROUP with your actual user and group
-    create 644 $USER $GROUP   # Replace $USER and $GROUP with your actual user and group
-    postrotate
-        echo "log rotated at $(date)" >> /home/$USER/log_rotates.log
-    endscript
+    create
 }
 ````
 ### 3. Run logrotate manually
