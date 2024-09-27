@@ -1,9 +1,8 @@
 import curses
-from collections import namedtuple
 import subprocess
+from collections import namedtuple
+
 import math
-from subprocess import check_output
-from urllib.parse import uses_relative
 
 PROGRAM_NAME = "USER MANAGER INTERFACE"
 VERSION = "0.2.0"
@@ -71,7 +70,7 @@ def delete_user(username, stdscr):
     message = f"Are you sure that you want to delete this user? '{username}' ?"
 
     if confirm_action(stdscr, message):
-        subprocess.run(['sudo', 'userdel', '-r', '-f',  username], stderr=subprocess.DEVNULL)
+        subprocess.run(['sudo', 'userdel', '-r', '-f', username], stderr=subprocess.DEVNULL)
         stdscr.addstr(1, 0, f"User with '{username}' has been successfully deleted, press any key to continue")
     else:
         stdscr.addstr(1, 0, f"User deletion cancelled, press any key to continue")
@@ -176,9 +175,11 @@ def show_commands(stdscr, height):
     commands = "[←/→] Prev/Next Page | [↑/↓] Navigate | [N] Add User | [BACKSPACE] Delete User | [L] Lock | [U] Unlock | [Q] Quit"
     stdscr.addstr(height - 1, 0, commands[:stdscr.getmaxyx()[1] - 1], curses.A_BOLD)
 
+
 def update_table(stdscr, users):
     page_size = stdscr.getmaxyx()[0] - 4
     return page_size, math.ceil(len(users) / page_size)
+
 
 def main(stdscr):
     curses.start_color()
@@ -225,8 +226,8 @@ def main(stdscr):
             users = get_all_users()
             current_option = min(current_option, len(users) - 1)
             page_size, total_pages = update_table(stdscr, users)
-            if current_page>total_pages:
-                current_page-=1
+            if current_page > total_pages:
+                current_page -= 1
         elif key == ProgramCodes.LOCK_USER:
             lock_user(stdscr, users[current_option].username)
             users = get_all_users()
