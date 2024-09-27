@@ -16,7 +16,7 @@ Write the following inside `task4_logs`:
 ````
 /home/$USER/logs/app.log {
 	hourly
- 	size 5K
+ 	size 1M
 	rotate 3
 	su $USER $GROUP
 	create
