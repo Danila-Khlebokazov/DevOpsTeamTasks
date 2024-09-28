@@ -2,7 +2,7 @@
 
 # reference https://docs.gitlab.com/runner/register/index.html
 
-link="https://gitlab.com/"
+link="https://gitlab.com"
 
 while getopts t:g:h:l: flag; do
   case "$flag" in
@@ -37,7 +37,7 @@ done
 
 if [ -n "$access_token" ]; then
   if [ -n "$project_group" ]; then
-      token=$(curl -X "POST" --header "PRIVATE-TOKEN: $access_token" --data "runner_type=group_type&group_id=$project_group" "$link/api/v4/user/runners" | jq .token)
+      token=$(curl -X"POST" --header "PRIVATE-TOKEN: $access_token" --data "runner_type=group_type&group_id=$project_group" "$link/api/v4/user/runners" | jq -r .token)
       sudo gitlab-runner register --non-interactive --url "$link" --token "$token" --executor "shell" --description "shell-runner"
 
       cat << EOF | sudo tee /home/gitlab-runner/.bash_logout
