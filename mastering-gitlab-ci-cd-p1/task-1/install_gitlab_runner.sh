@@ -39,11 +39,10 @@ else
   sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash
 fi
 
-# Install Service if not installed
-if [ -f /lib/systemd/system/gitlab-runner.service ]; then
+# Install Service if not installed in systemd
+if [ -f "/etc/systemd/system/gitlab-runner.service" ]; then
   echo "Service gitlab-runner exists."
 else
-  # Install Service
   sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
 fi
 
