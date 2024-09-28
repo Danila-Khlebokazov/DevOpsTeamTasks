@@ -1,5 +1,7 @@
 #! /bin/bash
 
+link="https://gitlab.com"
+
 access_token=$1
 
 if [ -z "$access_token" ]; then
@@ -9,13 +11,17 @@ if [ -z "$access_token" ]; then
   exit 1
 fi
 
+if [ -z "$2" ]; then
+  link="$2"
+fi
+
 # Stop the gitlab runner
 sudo gitlab-runner stop
 
 # Unregister the gitlab runner
 sudo gitlab-runner unregister --all-runners
 
-curl --header "PRIVATE-TOKEN: $access_token" "https://gitlab.com/api/v4/runners/all?scope=offline&per_page=100" | jq '.[].id' | xargs -I runner_id curl --request DELETE --header "PRIVATE-TOKEN: $access_token" "https://gitlab.com/api/v4/runners/runner_id"
+sudo cat /etc/gitlab-runner/config.toml | grep -oP 'id = \K\d+' | xargs -I runner_id curl -X"DELETE" --header "PRIVATE-TOKEN: $access_token" "$link/api/v4/runners/runner_id"
 
 # Remove the gitlab runner
 sudo gitlab-runner uninstall
