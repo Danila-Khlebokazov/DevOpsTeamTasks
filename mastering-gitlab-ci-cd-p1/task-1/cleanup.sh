@@ -19,7 +19,7 @@ fi
 sudo gitlab-runner stop
 
 # Unregister the gitlab runner
-sudo cat /etc/gitlab-runner/config.toml | grep -oP 'id = \K\d+' | xargs -I runner_id curl -X"DELETE" --header "PRIVATE-TOKEN: $access_token" "$link/api/v4/runners/runner_id"
+sudo cat /etc/gitlab-runner/config.toml | grep -oP 'id = \K\d+' | xargs -I runner_id curl -X"DELETE" --header "PRIVATE-TOKEN: $(echo $access_token)" "$(echo $link)/api/v4/runners/runner_id"
 
 sudo gitlab-runner unregister --all-runners
 
