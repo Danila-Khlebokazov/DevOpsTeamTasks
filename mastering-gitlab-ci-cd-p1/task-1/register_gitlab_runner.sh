@@ -15,9 +15,9 @@ while getopts t:g:h:l: flag; do
       exit 0
       ;;
     t | g)
-      if "$flag" == "t"; then
+      if ["$flag" = "t"]; then
         access_token="${OPTARG}"
-      elif "$flag" == "g"; then
+      elif ["$flag" = "g"]; then
         project_group="${OPTARG}"
       fi
       ;;
