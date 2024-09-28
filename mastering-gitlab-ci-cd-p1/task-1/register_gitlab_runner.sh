@@ -37,7 +37,7 @@ done
 
 if [ -n "$access_token" ]; then
   if [ -n "$project_group" ]; then
-      token=$(curl --request POST --header "PRIVATE-TOKEN: $access_token" --data "runner_type=group_type&group_id=$project_group" "https://gitlab.com/api/v4/user/runners")
+      token=$(curl --request POST --header "PRIVATE-TOKEN: $access_token" --data "runner_type=group_type&group_id=$project_group" "https://gitlab.com/api/v4/user/runners" | jq .token)
       sudo gitlab-runner register --non-interactive --url "$link" --token "$token" --executor "shell" --description "shell-runner"
       sudo gitlab-runner verify
 
