@@ -23,6 +23,9 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Println("App health checked")
 	w.Write([]byte("OK"))
+	for i := 0; i < 10000; i++ {
+		fmt.Println("Hello World")
+	}
 }
 
 func HomePage(w http.ResponseWriter, r *http.Request) {
