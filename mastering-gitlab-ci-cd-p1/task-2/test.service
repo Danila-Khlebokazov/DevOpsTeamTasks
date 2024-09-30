@@ -1,0 +1,19 @@
+[Unit]
+Description=Basic FastAPI service
+After=multi-user.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/app
+ExecStart=/home/ubuntu/app/venv/bin/uvicorn run:app --reload --host 0.0.0.0 --port 8000
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=30
+LimitNOFILE=4096
+StandardOutput=append:/var/log/fastapi.log
+StandardError=append:/var/log/fastapi.log
+
+[Install]
+WantedBy=multi-user.target
