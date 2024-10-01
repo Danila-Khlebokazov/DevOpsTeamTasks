@@ -43,6 +43,10 @@ triggered only when the monitoring stage fails.
 
 ### Task 4
 
+## Project
+
+https://gitlab.com/askaroe/gitlabcicd-task4
+
 Create a GitLab CI/CD pipeline that processes JSON configuration changes and conditionally executes jobs based on
 detected differences. The pipeline should be capable of identifying changes in specified keys and ensuring that
 subsequent jobs run only when relevant changes have occurred.
