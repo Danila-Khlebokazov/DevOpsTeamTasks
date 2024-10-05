@@ -36,7 +36,7 @@ Requires=monitoring.service
 OnCalendar= *-*-* *:*:*
 Unit=monitoring.service
 WorkingDirectory=/
-StandardOutput=append:/home/monitoring.log
+StandardOutput=append:/home/loging-timer.log
 
 [Install]
 WantedBy=timers.target
@@ -53,6 +53,7 @@ Wants=logrotate.timer
 Type=oneshot
 WorkingDirectory=/
 ExecStart=/usr/sbin/logrotate /etc/logrotate.d/task4_logs
+StandardOutput=append:/home/monitoring.log
 
 [Install]
 WantedBy=multi-user.target
