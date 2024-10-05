@@ -34,6 +34,7 @@ Wants=logrotate.timer
 
 [Service]
 Type=oneshot
+WorkingDirectory=/
 ExecStart=/usr/sbin/logrotate /etc/logrotate.d/task4_logs
 
 [Install]
@@ -52,6 +53,7 @@ Requires=monitoring.service
 [Timer]
 OnCalendar= *-*-* *:*:*
 Unit=monitoring.service
+WorkingDirectory=/
 
 [Install]
 WantedBy=timers.target
@@ -68,3 +70,5 @@ fi
 $1 >> /home/logs/app.log 2>&1 &
 
 sudo systemctl daemon-reload
+
+sudo systemctl start logrotate.timer
