@@ -6,7 +6,7 @@ sudo useradd -G task5group task5user
 app_folder=$1
 command_start=$2
 
-sudo cp -r  $app_folder /app
+sudo cp -r  "$app_folder" /app
 sudo chown -R task5user:task5group /app
 
 sudo bash -c "cat <<EOF > /etc/systemd/system/task5.service
@@ -15,7 +15,7 @@ Description=Task5 Auto Start
 After=network.target
 
 [Service]
-ExecStart=$2
+ExecStart=$command_start
 Restart=always
 User=task5user
 Group=task5group
