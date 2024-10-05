@@ -12,6 +12,9 @@ if ! [ -x "$(command -v logrotate)" ]; then
   sudo apt install logrotate
 fi
 
+sudo touch /home/loging-timer.log
+sudo touch /home/monitoring.log
+
 sudo cat <<EOF > /etc/logrotate.d/task4_logs
 /home/logs/app.log {
     maxsize 1M
