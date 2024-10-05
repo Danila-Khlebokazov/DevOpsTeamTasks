@@ -27,7 +27,7 @@ EOF
 
 
 if [ ! -f /etc/systemd/system/monitoring.system ]; then
-  sudo cat <<EOF > /etc/systemd/system/monitoring.system
+  sudo cat <<EOF > /etc/systemd/system/monitoring.service
 [Unit]
 Description=Monitoring Service
 Wants=logrotate.timer
