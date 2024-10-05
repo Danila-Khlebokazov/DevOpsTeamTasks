@@ -25,6 +25,23 @@ sudo cat <<EOF > /etc/logrotate.d/task4_logs
 }
 EOF
 
+# create timer for logrotate
+if [ ! -f /etc/systemd/system/logrotate.timer ]; then
+  sudo cat <<EOF > /etc/systemd/system/logrotate.timer
+[Unit]
+Description=Second Log Rotation
+Requires=monitoring.service
+
+[Timer]
+OnCalendar= *-*-* *:*:*
+Unit=monitoring.service
+WorkingDirectory=/
+StandardOutput=append:/home/monitoring.log
+
+[Install]
+WantedBy=timers.target
+EOF
+fi
 
 if [ ! -f /etc/systemd/system/monitoring.system ]; then
   sudo cat <<EOF > /etc/systemd/system/monitoring.service
@@ -39,24 +56,6 @@ ExecStart=/usr/sbin/logrotate /etc/logrotate.d/task4_logs
 
 [Install]
 WantedBy=multi-user.target
-EOF
-fi
-
-
-# create timer for logrotate
-if [ ! -f /etc/systemd/system/logrotate.timer ]; then
-  sudo cat <<EOF > /etc/systemd/system/logrotate.timer
-[Unit]
-Description=Second Log Rotation
-Requires=monitoring.service
-
-[Timer]
-OnCalendar= *-*-* *:*:00
-Unit=monitoring.service
-WorkingDirectory=/
-
-[Install]
-WantedBy=timers.target
 EOF
 fi
 
