@@ -25,12 +25,37 @@ sudo cat <<EOF > /etc/logrotate.d/task4_logs
 }
 EOF
 
-if ! sudo grep -Fq "/usr/sbin/logrotate /etc/logrotate.d/task4_logs" /etc/crontab; then
-  echo "Adding cron job for logrotate"
-  sudo bash -c "echo '* * * * * root /usr/sbin/logrotate /etc/logrotate.d/task4_logs' >> /etc/crontab"
-  sudo systemctl restart cron
-else
-  echo "Cron job already exists"
+
+if [ ! -f /etc/systemd/system/monitoring.system ]; then
+  sudo cat <<EOF > /etc/systemd/system/monitoring.system
+[Unit]
+Description=Monitoring Service
+Wants=monitoring.timer
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/logrotate /etc/logrotate.d/task4_logs
+
+[Install]
+WantedBy=multi-user.target
+EOF
+fi
+
+
+# create timer for logrotate
+if [ ! -f /etc/systemd/system/logrotate.timer ]; then
+  sudo cat <<EOF > /etc/systemd/system/logrotate.timer
+[Unit]
+Description=Second Log Rotation
+Requires=monitoring.service
+
+[Timer]
+OnCalendar= *-*-* *:*:*
+Unit=monitoring.service
+
+[Install]
+WantedBy=timers.target
+EOF
 fi
 
 if [ ! -d /home/logs/ ]; then
@@ -41,3 +66,5 @@ if [ ! -f /home/logs/app.log ]; then
 fi
 
 $1 >> /home/logs/app.log 2>&1 &
+
+sudo systemctl daemon-reload
