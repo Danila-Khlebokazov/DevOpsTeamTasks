@@ -51,7 +51,7 @@ Description=Second Log Rotation
 Requires=monitoring.service
 
 [Timer]
-OnCalendar= *-*-* *:*:*
+OnCalendar= *-*-* *:*:00
 Unit=monitoring.service
 WorkingDirectory=/
 
