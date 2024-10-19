@@ -1,0 +1,13 @@
+[Unit]
+Description=Gitlab Runner Hub Service
+Wants=gitlab-runner-hub.timer
+
+[Service]
+Type=oneshot
+ExecStart=/var/lib/gitlab-runner-hub/serve_runners.sh
+WorkingDirectory=/
+User=root
+EnvironmentFile=/var/lib/gitlab-runner-hub/env
+
+[Install]
+WantedBy=multi-user.target
