@@ -1,0 +1,12 @@
+[Unit]
+Description=Docker Viper Service
+Wants=docker-viper.timer
+
+[Service]
+Type=oneshot
+ExecStart=/var/lib/docker-viper/docker-viper.sh
+WorkingDirectory=/
+User=root
+
+[Install]
+WantedBy=multi-user.target

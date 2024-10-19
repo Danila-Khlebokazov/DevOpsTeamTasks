@@ -1,0 +1,11 @@
+[Unit]
+Description=Docker Viper Timer
+
+
+[Timer]
+OnCalendar= *-*-* *:*:*
+Unit=docker-viper.service
+
+
+[Install]
+WantedBy=default.target
