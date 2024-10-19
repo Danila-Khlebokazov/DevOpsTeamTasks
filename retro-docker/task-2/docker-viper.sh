@@ -4,7 +4,7 @@
 # image_sha last_used
 
 VIPE_TIME=300
-VIPE_JOURNAL=/var/lib/docker-viper/vipe-container.journal
+VIPE_JOURNAL=/var/lib/docker-viper/vipe-image.journal
 VIPE_LOG=/var/lib/docker-viper/viper.log
 
 viper() {
@@ -24,7 +24,7 @@ viper() {
     if grep -q $image "$VIPE_JOURNAL"; then
       if echo "$current_use_images" | grep -q $image; then
         sed -i "s/$image.*/$image $last_used/" "$VIPE_JOURNAL"
-      elif [ $(($last_used - $(grep $image /tmp/viper_journal | awk '{print $2}'))) -gt $VIPE_TIME ]; then
+      elif [ $(($last_used - $(grep $image "$VIPE_JOURNAL" | awk '{print $2}'))) -gt $VIPE_TIME ]; then
         image_info=$(docker images --format="{{.Repository}}:{{.Tag}}" $image)
         docker rmi $image
         sed -i "/$image/d" "$VIPE_JOURNAL"
