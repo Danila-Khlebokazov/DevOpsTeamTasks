@@ -25,10 +25,9 @@ viper() {
       if echo "$current_use_images" | grep -q $image; then
         sed -i "s/$image.*/$image $last_used/" "$VIPE_JOURNAL"
       elif [ $(($last_used - $(grep $image "$VIPE_JOURNAL" | awk '{print $2}'))) -gt $VIPE_TIME ]; then
-        image_info=$(docker images --format="{{.Repository}}:{{.Tag}}" $image)
         docker rmi $image
         sed -i "/$image/d" "$VIPE_JOURNAL"
-        echo "Viper viped image $image $image_info at $(date)"
+        echo "Viper viped image $image at $(date)"
       fi
     else
       echo "$image $last_used" >> "$VIPE_JOURNAL"
