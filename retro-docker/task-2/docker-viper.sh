@@ -37,4 +37,5 @@ viper() {
   done
 }
 
+
 viper >> "$VIPE_LOG" 2>&1
