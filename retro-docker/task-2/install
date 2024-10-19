@@ -5,8 +5,9 @@ if ! [ -x "$(command -v docker)" ]; then
   exit 1
 fi
 
-cp /var/lib/docker-viper/docker-viper.service /etc/systemd/system/docker-viper.service
-cp /var/lib/docker-viper/docker-viper.timer /etc/systemd/system/docker-viper.timer
+cp docker-viper.sh var/lib/docker-viper/docker-viper.sh
+cp docker-viper.service /etc/systemd/system/docker-viper.service
+cp docker-viper.timer /etc/systemd/system/docker-viper.timer
 
 systemctl daemon-reload
 
