@@ -3,7 +3,9 @@
 # vipe journal structure
 # image_sha last_used
 
-VIPE_TIME=300
+if [ -z "$VIPE_TIME" ] && [ "$VIPE_TIME" -lt 1 ]; then
+  VIPE_TIME=604800 # 7 days
+fi
 VIPE_JOURNAL=/var/lib/docker-viper/vipe-image.journal
 VIPE_LOG=/var/lib/docker-viper/viper.log
 
