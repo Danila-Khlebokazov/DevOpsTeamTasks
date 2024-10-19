@@ -1,0 +1,11 @@
+[Unit]
+Description=Gitlab Runner Hub Timer
+
+
+[Timer]
+OnCalendar= *-*-* *:*:*
+Unit=gitlab-runner-hub.service
+
+
+[Install]
+WantedBy=default.target

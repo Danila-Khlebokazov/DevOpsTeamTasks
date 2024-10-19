@@ -1,0 +1,26 @@
+#! /bin/bash
+
+if ! [ -x "$(command -v docker)" ]; then
+  echo "Error: Docker is not installed." >&2
+  exit 1
+fi
+
+if [ -z "$DEFAULT_RUNNER_IMAGE" ]; then
+  DEFAULT_RUNNER_IMAGE=danilakhlebokazov/gitlab-runner:docker-v1.0.1
+fi
+
+sed -i "s|DEFAULT_RUNNER_IMAGE=.*|DEFAULT_RUNNER_IMAGE=$DEFAULT_RUNNER_IMAGE|" env
+
+docker pull "$DEFAULT_RUNNER_IMAGE"
+
+mkdir -p /var/lib/gitlab-runner-hub
+cp env /var/lib/gitlab-runner-hub/env
+cp serve_runners.sh /var/lib/gitlab-runner-hub/serve_runners.sh
+cp gitlab-runner-hub.service /etc/systemd/system/gitlab-runner-hub.service
+cp gitlab-runner-hub.timer /etc/systemd/system/gitlab-runner-hub.timer
+
+systemctl daemon-reload
+systemctl enable gitlab-runner-hub.timer
+systemctl start gitlab-runner-hub.timer
+
+echo "Gitlab Runner Hub has been installed successfully."
