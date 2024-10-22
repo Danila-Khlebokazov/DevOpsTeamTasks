@@ -60,7 +60,7 @@ if [ $pending_jobs_all -gt 0 ]; then
     if [ $current_runners -lt $MAX_RUNNERS ]; then
       run_new_runner
       echo "New runner started"
-      current_runners=$current_runners+1
+      current_runners=$(($current_runners+1))
     fi
   done
 elif [ $(($running_jobs_all - $current_runners)) -lt 0 ]; then
@@ -68,7 +68,7 @@ elif [ $(($running_jobs_all - $current_runners)) -lt 0 ]; then
     if [ $current_runners -gt $MIN_RUNNERS ]; then
       stop_runner
       echo "Runner stopped"
-      current_runners=$current_runners-1
+      current_runners=$(($current_runners-1))
     fi
   done
 fi
