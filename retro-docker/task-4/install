@@ -38,7 +38,7 @@ while getopts ":h:g:t:i:" opt; do
 done
 
 if [ -z "$DEFAULT_RUNNER_IMAGE" ]; then
-  DEFAULT_RUNNER_IMAGE=danilakhlebokazov/gitlab-runner:docker-v1.0.2
+  DEFAULT_RUNNER_IMAGE=danilakhlebokazov/gitlab-runner:docker-v1.0.1
 fi
 
 if [ -z "$GROUP_ID" ] || [ -z "$GITLAB_ACCESS_TOKEN" ]; then
