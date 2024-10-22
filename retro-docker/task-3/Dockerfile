@@ -5,7 +5,7 @@ ENV PROJECT_GROUP=""
 ENV GITLAB_ACCESS_TOKEN=""
 ENV TZ="Asia/Almaty"
 
-RUN apt-get update && apt-get install -y sudo jq git docker.io curl wget unzip
+RUN apt-get update && apt-get install -y build-essential sudo jq git docker.io curl wget unzip
 
 WORKDIR /install
 
