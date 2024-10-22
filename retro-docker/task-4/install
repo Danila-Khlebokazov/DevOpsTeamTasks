@@ -9,7 +9,7 @@ if [ -z "$DEFAULT_RUNNER_IMAGE" ]; then
   DEFAULT_RUNNER_IMAGE=danilakhlebokazov/gitlab-runner:docker-v1.0.2
 fi
 
-sed -i "s|DEFAULT_RUNNER_IMAGE=.*|DEFAULT_RUNNER_IMAGE=$DEFAULT_RUNNER_IMAGE|" env
+sed -i "s|DEFAULT_RUNNER_IMAGE=.*|DEFAULT_RUNNER_IMAGE=$DEFAULT_RUNNER_IMAGE|" runner-hub.env
 
 docker pull "$DEFAULT_RUNNER_IMAGE"
 
