@@ -20,7 +20,7 @@ get_pending_jobs() {
 }
 
 run_new_runner() {
-  docker run -d --name gitlab-runner-$current_runners $RUNNER_IMAGE
+  docker run --rm -d --name gitlab-runner-$current_runners $RUNNER_IMAGE
 }
 
 stop_runner() {
@@ -31,12 +31,23 @@ get_current_projects_ids
 get_current_active_runners
 get_pending_jobs
 
-if [ $pending_jobs_all -gt 0 ]; then
-  if [ $current_runners -lt $MAX_RUNNERS ]; then
+# Init runners
+if [ $current_runners -eq 0 ]; then
+  for i in $(seq 1 $(($MIN_RUNNERS))); do
     run_new_runner
-  fi
-elif [ $current_runners -gt $MIN_RUNNERS ]; then
-  stop_runner
-elif [ $current_runners -lt $MIN_RUNNERS ]; then
-  run_new_runner
+  done
+fi
+
+if [ $(($pending_jobs_all - $current_runners)) -gt 0 ]; then
+  for i in $(seq 1 $(($pending_jobs_all - $current_runners))); do
+    if [ $current_runners -lt $MAX_RUNNERS ]; then
+      run_new_runner
+    fi
+  done
+elif [ $(($pending_jobs_all - $current_runners)) -lt 0 ]; then
+  for i in $(seq 1 $(($current_runners - $pending_jobs_all))); do
+    if [ $current_runners -gt $MIN_RUNNERS ]; then
+      stop_runner
+    fi
+  done
 fi
