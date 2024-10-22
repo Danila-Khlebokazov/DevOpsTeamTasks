@@ -37,7 +37,7 @@ run_new_runner() {
 }
 
 stop_runner() {
-  docker container stop $(docker container ls --filter=ancestor=$RUNNER_IMAGE --format "{{.ID}}" | tail -n 1)
+  docker container stop $(docker container ls --filter=ancestor=$RUNNER_IMAGE --format "{{.ID}}" | head -n 1)
 }
 
 get_current_projects_ids
@@ -60,6 +60,7 @@ if [ $pending_jobs_all -gt 0 ]; then
     if [ $current_runners -lt $MAX_RUNNERS ]; then
       run_new_runner
       echo "New runner started"
+      current_runners=$current_runners+1
     fi
   done
 elif [ $(($running_jobs_all - $current_runners)) -lt 0 ]; then
@@ -67,6 +68,7 @@ elif [ $(($running_jobs_all - $current_runners)) -lt 0 ]; then
     if [ $current_runners -gt $MIN_RUNNERS ]; then
       stop_runner
       echo "Runner stopped"
+      current_runners=$current_runners-1
     fi
   done
 fi
