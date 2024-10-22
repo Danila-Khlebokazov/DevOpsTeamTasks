@@ -20,7 +20,7 @@ get_pending_jobs() {
 }
 
 run_new_runner() {
-  docker run --rm -d --name gitlab-runner-$current_runners $RUNNER_IMAGE
+  docker run --rm -d --name gitlab-runner-$current_runners -e PROJECT_GROUP=$PROJECT_GROUP -e GITLAB_ACCESS_TOKEN=$GITLAB_ACCESS_TOKEN $RUNNER_IMAGE
 }
 
 stop_runner() {
