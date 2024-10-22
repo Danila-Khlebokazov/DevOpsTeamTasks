@@ -8,6 +8,7 @@ ExecStart=/var/lib/docker-viper/docker-viper.sh
 WorkingDirectory=/
 User=root
 EnvironmentFile=/var/lib/docker-viper/docker-viper.env
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
