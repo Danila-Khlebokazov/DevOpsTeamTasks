@@ -3,6 +3,15 @@
 # vipe journal structure
 # image_sha last_used
 
+get_current_use_images() {
+  containers=$(docker container ls -a --format="{{.Image}}" | sed 's/\(^[^:]*$\)/\1:latest/')
+  if [ -z "$containers" ]; then
+    export containers
+  else
+    export containers=$(echo $containers | xargs -n1 docker images -q)
+  fi
+}
+
 viper() {
   if [ ! -f "$VIPE_JOURNAL" ]; then
     touch "$VIPE_JOURNAL"
@@ -12,7 +21,7 @@ viper() {
   fi
 
   current_images=$(docker images -q)
-  current_use_images=$(docker container ls -a --format="{{.Image}}" | sed 's/\(^[^:]*$\)/\1:latest/' | xargs -n1 docker images -q)
+  current_use_images=$(get_current_use_images)
 
   # Update info in journal
   for image in $current_images; do
