@@ -7,7 +7,7 @@ Type=oneshot
 ExecStart=/var/lib/gitlab-runner-hub/serve_runners.sh
 WorkingDirectory=/
 User=root
-EnvironmentFile=/var/lib/gitlab-runner-hub/env
+EnvironmentFile=/var/lib/gitlab-runner-hub/runner-hub.env
 
 [Install]
 WantedBy=multi-user.target
