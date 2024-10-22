@@ -1,4 +1,6 @@
 #! /bin/bash
+
+echo "Starting GitLab Runner Service at $(date)"
 RUNNER_IMAGE=$DEFAULT_RUNNER_IMAGE
 
 get_current_projects_ids() {
@@ -39,6 +41,9 @@ get_current_projects_ids
 get_current_active_runners
 get_pending_jobs
 get_running_jobs
+echo "Current Runners: $current_runners"
+echo "Pending Jobs: $pending_jobs_all"
+echo "Running Jobs: $running_jobs_all"
 
 # Init runners
 if [ $current_runners -eq 0 ]; then
@@ -51,12 +56,16 @@ if [ $pending_jobs_all -gt 0 ]; then
   for i in $(seq 1 $pending_jobs_all); do
     if [ $current_runners -lt $MAX_RUNNERS ]; then
       run_new_runner
+      echo "New runner started"
     fi
   done
 elif [ $(($running_jobs_all - $current_runners)) -lt 0 ]; then
   for i in $(seq 1 $(($current_runners - $running_jobs_all))); do
     if [ $current_runners -gt $MIN_RUNNERS ]; then
       stop_runner
+      echo "Runner stopped"
     fi
   done
 fi
+
+echo "GitLab Runner Service finished at $(date)"

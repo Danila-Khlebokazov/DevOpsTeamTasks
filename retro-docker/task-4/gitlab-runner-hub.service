@@ -8,6 +8,7 @@ ExecStart=/var/lib/gitlab-runner-hub/serve_runners.sh
 WorkingDirectory=/
 User=root
 EnvironmentFile=/var/lib/gitlab-runner-hub/runner-hub.env
+StandardOutput=/var/lib/gitlab-runner-hub/serve_runners.log
 
 [Install]
 WantedBy=multi-user.target
