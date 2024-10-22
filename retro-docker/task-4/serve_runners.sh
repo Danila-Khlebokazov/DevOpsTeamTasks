@@ -4,7 +4,7 @@ echo "Starting GitLab Runner Service at $(date)"
 RUNNER_IMAGE=$DEFAULT_RUNNER_IMAGE
 
 get_current_projects_ids() {
-  projects=($(curl -g --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "https://gitlab.com/api/v4/groups/$GITLAB_GROUP/projects/" | jq '.[].id'))
+  projects=($(curl -g --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "https://gitlab.com/api/v4/groups/$PROJECT_GROUP/projects/" | jq '.[].id'))
   echo "Projects: " "${projects[@]}"
   export projects
 }
