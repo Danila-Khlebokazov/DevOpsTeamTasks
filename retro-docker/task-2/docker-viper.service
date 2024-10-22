@@ -7,6 +7,7 @@ Type=oneshot
 ExecStart=/var/lib/docker-viper/docker-viper.sh
 WorkingDirectory=/
 User=root
+EnvironmentFile=/var/lib/docker-viper/docker-viper.env
 
 [Install]
 WantedBy=multi-user.target
