@@ -31,7 +31,7 @@ systemctl start vault
 
 vault -autocomplete-install
 
-export VAULT_ADDR="http://0.0.0.0:8200"
+export VAULT_ADDR="https://0.0.0.0:8200"
 export VAULT_TOKEN="1"
 
 echo << EOF >> /etc/vault.d/vault.hcl
@@ -41,9 +41,11 @@ listener "tcp" {
 }
 
 disable_mlock = true
-api_addr      = "http://127.0.0.1:8200"
+api_addr      = "https://127.0.0.1:8200"
 cluster_addr  = "https://127.0.0.1:8201"
 EOF
+
+server
 
 vault status
 
