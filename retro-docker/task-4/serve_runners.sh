@@ -19,7 +19,7 @@ get_pending_jobs() {
   for project_id in "${projects[@]}"; do
     pending_jobs_num=$(curl -g --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "$GIRLAB_URL/api/v4/projects/$project_id/jobs?scope=pending" | jq length);
     echo "Pending Jobs: $pending_jobs_num"
-    pending_jobs_all+=$pending_jobs_num
+    pending_jobs_all=$(($pending_jobs_all + $pending_jobs_num))
   done
 }
 
@@ -30,7 +30,7 @@ get_running_jobs() {
     running_jobs_num=$(echo "$running_jobs_info" | jq length);
     running_jobs_runners_ids=$(echo "$running_jobs_info" | jq '.[].runner.id' | sort | uniq)
     echo "Running Jobs: $running_jobs_num"
-    running_jobs_all+=$running_jobs_num
+    running_jobs_all=$(($running_jobs_all + $running_jobs_num))
   done
 }
 
