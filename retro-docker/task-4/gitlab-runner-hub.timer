@@ -3,7 +3,7 @@ Description=Gitlab Runner Hub Timer
 
 
 [Timer]
-OnCalendar= *-*-* *:*:*
+OnUnitInactiveSec=10s
 Unit=gitlab-runner-hub.service
 
 

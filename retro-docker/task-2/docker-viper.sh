@@ -3,11 +3,14 @@
 # vipe journal structure
 # image_sha last_used
 
-if [ -z "$VIPE_TIME" ] || [ "$VIPE_TIME" -lt 1 ]; then
-  VIPE_TIME=604800 # 7 days
-fi
-VIPE_JOURNAL=/var/lib/docker-viper/vipe-image.journal
-VIPE_LOG=/var/lib/docker-viper/viper.log
+get_current_use_images() {
+  containers=$(docker container ls -a --format="{{.Image}}" | sed 's/\(^[^:]*$\)/\1:latest/')
+  if [ -z "$containers" ]; then
+    export containers
+  else
+    export containers=$(echo $containers | xargs -n1 docker images -q)
+  fi
+}
 
 viper() {
   if [ ! -f "$VIPE_JOURNAL" ]; then
@@ -18,7 +21,7 @@ viper() {
   fi
 
   current_images=$(docker images -q)
-  current_use_images=$(docker container ls -a --format="{{.Image}}" | sed 's/\(^[^:]*$\)/\1:latest/' | xargs -n1 docker images -q)
+  current_use_images=$(get_current_use_images)
 
   # Update info in journal
   for image in $current_images; do
@@ -26,8 +29,8 @@ viper() {
     if grep -q $image "$VIPE_JOURNAL"; then
       if echo "$current_use_images" | grep -q $image; then
         sed -i "s/$image.*/$image $last_used/" "$VIPE_JOURNAL"
-      elif [ -n "$VIPE_JOURNAL" ] && [ $(($last_used - $(grep $image "$VIPE_JOURNAL" | awk '{print $2}'))) -gt $VIPE_TIME ]; then
-        docker rmi -f $image
+      elif [ $(($last_used - $(grep $image "$VIPE_JOURNAL" | awk '{print $2}'))) -gt $VIPE_TIME ]; then
+        docker rmi $image
         sed -i "/$image/d" "$VIPE_JOURNAL"
         echo "Viper viped image $image at $(date)"
       fi
@@ -36,6 +39,5 @@ viper() {
     fi
   done
 }
-
 
 viper >> "$VIPE_LOG" 2>&1

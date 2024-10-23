@@ -5,16 +5,55 @@ if ! [ -x "$(command -v docker)" ]; then
   exit 1
 fi
 
-if [ -z "$DEFAULT_RUNNER_IMAGE" ]; then
-  DEFAULT_RUNNER_IMAGE=danilakhlebokazov/gitlab-runner:docker-v1.0.1
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root"
+  exit
 fi
 
-sed -i "s|DEFAULT_RUNNER_IMAGE=.*|DEFAULT_RUNNER_IMAGE=$DEFAULT_RUNNER_IMAGE|" env
+# help | group_id | access_token | default_runner_image
+while getopts ":h:g:t:i:" opt; do
+  case ${opt} in
+    h )
+      echo "Usage: ./install.sh -g <group_id> -t <gitlab_access_token> -i <default_runner_image>"
+      exit 0
+      ;;
+    g )
+      GROUP_ID=$OPTARG
+      ;;
+    t )
+      GITLAB_ACCESS_TOKEN=$OPTARG
+      ;;
+    i )
+      DEFAULT_RUNNER_IMAGE=$OPTARG
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      exit 1
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      exit 1
+      ;;
+  esac
+done
+
+if [ -z "$DEFAULT_RUNNER_IMAGE" ]; then
+  DEFAULT_RUNNER_IMAGE=danilakhlebokazov/gitlab-runner:docker-v1.0.2
+fi
+
+if [ -z "$GROUP_ID" ] || [ -z "$GITLAB_ACCESS_TOKEN" ]; then
+  echo "Usage: ./install.sh -g <group_id> -a <access_token> -i <default_runner_image>"
+  exit 1
+fi
+
+sed -i "s|DEFAULT_RUNNER_IMAGE=.*|DEFAULT_RUNNER_IMAGE=$DEFAULT_RUNNER_IMAGE|" runner-hub.env
+sed -i "s|PROJECT_GROUP=.*|PROJECT_GROUP=$GROUP_ID|" runner-hub.env
+sed -i "s|GITLAB_ACCESS_TOKEN=.*|GITLAB_ACCESS_TOKEN=$GITLAB_ACCESS_TOKEN|" runner-hub.env
 
 docker pull "$DEFAULT_RUNNER_IMAGE"
 
 mkdir -p /var/lib/gitlab-runner-hub
-cp env /var/lib/gitlab-runner-hub/env
+cp runner-hub.env /var/lib/gitlab-runner-hub/runner-hub.env
 cp serve_runners.sh /var/lib/gitlab-runner-hub/serve_runners.sh
 cp gitlab-runner-hub.service /etc/systemd/system/gitlab-runner-hub.service
 cp gitlab-runner-hub.timer /etc/systemd/system/gitlab-runner-hub.timer
