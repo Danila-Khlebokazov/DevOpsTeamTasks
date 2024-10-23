@@ -48,6 +48,7 @@ stop_runner() {
     container_runner_id=$(echo $container_id | cut -d'-' -f3)
     if [[ ! " ${running_jobs_runners_ids[*]} " =~ "$container_runner_id" ]]; then
       docker container stop $container_id
+      curl --request DELETE --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "$GIRLAB_URL/api/v4/runners/$container_runner_id"
     fi
   done
 }
