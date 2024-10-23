@@ -44,7 +44,7 @@ run_new_runner() {
 
 stop_runner() {
   # stop runner that gitlab-runner-{id} not in running_jobs_runners_ids
-  for container_id in $(docker container ls --filter=ancestor=$RUNNER_IMAGE --format "{{.NAMES}}"); do
+  for container_id in $(docker container ls --filter=ancestor=$RUNNER_IMAGE --format "{{.Names}}"); do
     container_runner_id=$(echo $container_id | cut -d'-' -f3)
     if [[ ! " ${running_jobs_runners_ids[*]} " =~ "$container_runner_id" ]]; then
       docker container stop $container_id
