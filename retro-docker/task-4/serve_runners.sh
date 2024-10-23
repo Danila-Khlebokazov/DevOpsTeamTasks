@@ -4,7 +4,7 @@ echo "Starting GitLab Runner Service at $(date)"
 RUNNER_IMAGE=$DEFAULT_RUNNER_IMAGE
 
 get_current_projects_ids() {
-  projects=($(curl -g --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "https://gitlab.com/api/v4/groups/$PROJECT_GROUP/projects/" | jq '.[].id'))
+  projects=($(curl -g --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "$GIRLAB_URL/api/v4/groups/$PROJECT_GROUP/projects/" | jq '.[].id'))
   echo "Projects: " "${projects[@]}"
   export projects
 }
@@ -17,7 +17,7 @@ get_current_active_runners() {
 get_pending_jobs() {
   pending_jobs_all=0
   for project_id in "${projects[@]}"; do
-    pending_jobs_num=$(curl -g --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "https://gitlab.com/api/v4/projects/$project_id/jobs?scope=pending" | jq length);
+    pending_jobs_num=$(curl -g --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "$GIRLAB_URL/api/v4/projects/$project_id/jobs?scope=pending" | jq length);
     echo "Pending Jobs: $pending_jobs_num"
     pending_jobs_all+=$pending_jobs_num
   done
@@ -26,18 +26,30 @@ get_pending_jobs() {
 get_running_jobs() {
   running_jobs_all=0
   for project_id in "${projects[@]}"; do
-    running_jobs_num=$(curl -g --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "https://gitlab.com/api/v4/projects/$project_id/jobs?scope=running" | jq length);
+    running_jobs_info=$(curl -g --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "$GIRLAB_URL/api/v4/projects/$project_id/jobs?scope=running")
+    running_jobs_num=$(jq length "$running_jobs_info");
+    running_jobs_runners_ids=$(echo "$running_jobs_info" | jq '.[].runner.id' | sort | uniq)
     echo "Running Jobs: $running_jobs_num"
     running_jobs_all+=$running_jobs_num
   done
 }
 
 run_new_runner() {
-  docker run --rm -d --name gitlab-runner-$current_runners -e PROJECT_GROUP=$PROJECT_GROUP -e GITLAB_ACCESS_TOKEN=$GITLAB_ACCESS_TOKEN $RUNNER_IMAGE
+  response=$(curl -X"POST" --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" --data "runner_type=group_type&group_id=$PROJECT_GROUP" "$GIRLAB_URL/api/v4/user/runners")
+  token=$(echo "$response" | jq -r .token)
+  runner_id=$(echo "$response" | jq -r .id)
+
+  docker run --rm -d --name gitlab-runner-$runner_id -e RUNNER_TOKEN=$token -e GITLAB_SOURCE=$GIRLAB_URL $RUNNER_IMAGE
 }
 
 stop_runner() {
-  docker container stop $(docker container ls --filter=ancestor=$RUNNER_IMAGE --format "{{.ID}}" | head -n 1)
+  # stop runner that gitlab-runner-{id} not in running_jobs_runners_ids
+  for container_id in $(docker container ls --filter=ancestor=$RUNNER_IMAGE --format "{{.NAMES}}"); do
+    container_runner_id=$(echo $container_id | cut -d'-' -f3)
+    if [[ ! " ${running_jobs_runners_ids[*]} " =~ "$container_runner_id" ]]; then
+      docker container stop $container_id
+    fi
+  done
 }
 
 get_current_projects_ids
