@@ -27,7 +27,7 @@ get_running_jobs() {
   running_jobs_all=0
   for project_id in "${projects[@]}"; do
     running_jobs_info=$(curl -g --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "$GIRLAB_URL/api/v4/projects/$project_id/jobs?scope=running")
-    running_jobs_num=$(jq length "$running_jobs_info");
+    running_jobs_num=$(echo "$running_jobs_info" | jq length);
     running_jobs_runners_ids=$(echo "$running_jobs_info" | jq '.[].runner.id' | sort | uniq)
     echo "Running Jobs: $running_jobs_num"
     running_jobs_all+=$running_jobs_num
