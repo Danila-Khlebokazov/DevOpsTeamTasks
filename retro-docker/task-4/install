@@ -63,3 +63,4 @@ systemctl enable gitlab-runner-hub.timer
 systemctl start gitlab-runner-hub.timer
 
 echo "Gitlab Runner Hub has been installed successfully."
+cat ./logo

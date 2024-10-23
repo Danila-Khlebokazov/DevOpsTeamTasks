@@ -18,3 +18,4 @@ systemctl enable docker-viper.timer
 systemctl start docker-viper.timer
 
 echo "Docker Viper has been installed successfully."
+cat ./logo

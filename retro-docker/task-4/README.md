@@ -1,3 +1,14 @@
+```plaintext
+   _____ _ _   _       _       _____                               _    _       _     
+  / ____(_) | | |     | |     |  __ \                             | |  | |     | |    
+ | |  __ _| |_| | __ _| |__   | |__) |   _ _ __  _ __   ___ _ __  | |__| |_   _| |__  
+ | | |_ | | __| |/ _` | '_ \  |  _  / | | | '_ \| '_ \ / _ \ '__| |  __  | | | | '_ \ 
+ | |__| | | |_| | (_| | |_) | | | \ \ |_| | | | | | | |  __/ |    | |  | | |_| | |_) |
+  \_____|_|\__|_|\__,_|_.__/  |_|  \_\__,_|_| |_|_| |_|\___|_|    |_|  |_|\__,_|_.__/ 
+                                                                                      
+                                                                                      
+```
+
 ### How to use
 
 1. Pull this git repo
@@ -17,7 +28,7 @@ sudo ./install
 
 #### Common questions:
 
-1. Where to find the viping logs?
+1. How to config the Gitlab Runner Hub?
 
 ```bash
 sudo cat /var/lib/docker-viper/viper.log

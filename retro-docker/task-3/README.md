@@ -8,7 +8,7 @@ docker pull danilakhlebokazov/gitlab-runner:docker-v1.0.2
 2. Prepare your GitLab access token and Group ID in Gitlab
 Also you can specify source url
 ```bash
-GITLAB_SOURCE=https://gitlab.com` without slash at the end
+GITLAB_SOURCE=https://gitlab.com` # without slash at the end
 GITLAB_ACCESS_TOKEN=your_access_token
 PROJECT_GROUP=your_group_id
 ```
@@ -22,3 +22,4 @@ docker run --rm -d --name gitlab-runner \
     danilakhlebokazov/gitlab-runner:docker-v1.0.2
 ```
 
+> If you want to see other images you can visit [Docker Hub](https://hub.docker.com/r/danilakhlebokazov/gitlab-runner/tags)
