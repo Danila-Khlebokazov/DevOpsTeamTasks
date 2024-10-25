@@ -25,27 +25,37 @@ wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/sha
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update && sudo apt install vault
 
-systemctl enable vault
+sudo systemctl enable vault
 
-systemctl start vault
+sudo systemctl start vault
 
 vault -autocomplete-install
 
-export VAULT_ADDR="https://0.0.0.0:8200"
+export VAULT_ADDR="http://127.0.0.1:8200"
 export VAULT_TOKEN="1"
 
-echo << EOF >> /etc/vault.d/vault.hcl
+sudo mkdir -p /etc/vault.d/
+
+sudo tee /etc/vault.d/vault.hcl > /dev/null <<EOF
+ui = true
+
+storage "file" {
+  path = "/opt/vault/data"
+}
+
 listener "tcp" {
   address     = "0.0.0.0:8200"
   tls_disable = true
 }
 
 disable_mlock = true
-api_addr      = "https://127.0.0.1:8200"
-cluster_addr  = "https://127.0.0.1:8201"
+api_addr      = "http://127.0.0.1:8200"
+cluster_addr  = "http://127.0.0.1:8201"
 EOF
 
-server
+sudo mkdir -p /opt/vault/data
+
+sudo systemctl restart vault
 
 vault status
 
