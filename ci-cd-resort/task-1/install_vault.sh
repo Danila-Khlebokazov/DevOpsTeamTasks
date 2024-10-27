@@ -32,7 +32,6 @@ sudo systemctl start vault
 vault -autocomplete-install
 
 export VAULT_ADDR="http://127.0.0.1:8200"
-export VAULT_TOKEN="1"
 
 sudo mkdir -p /etc/vault.d/
 
@@ -59,4 +58,5 @@ sudo systemctl restart vault
 
 vault status
 
-vault operator init
+export VAULT_TOKEN=$(vault operator init -key-shares=1 -key-threshold=1 -format=json | jq -r ".root_token")
+echo $VAULT_TOKEN > /home/root-token.txt
