@@ -1,13 +1,12 @@
 #!/bin/bash
 
-# reference https://developer.hashicorp.com/vault/install
+# Reference: https://developer.hashicorp.com/vault/install
 
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   exit
 fi
 
-# check if wget and gpg are installed
 if ! command -v wget &> /dev/null
 then
     echo "wget could not be found"
@@ -25,39 +24,47 @@ echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://
 sudo apt update && sudo apt install vault
 
 sudo cp /lib/systemd/system/vault.service /lib/systemd/system/vault2.service
-
 sudo sed -i 's#ExecStart=/usr/bin/vault server -config=/etc/vault.d/vault.hcl#ExecStart=/usr/bin/vault server -config=/etc/vault2.d/vault2.hcl#g' /lib/systemd/system/vault2.service
 sudo sed -i 's#User=vault#User=root#g' /lib/systemd/system/vault2.service
 
-sudo systemctl enable vault2
-sudo systemctl start vault2
 
 export VAULT_ADDR="http://127.0.0.1:8100"
 
-
 sudo mkdir -p /etc/vault2.d/
-
 sudo tee /etc/vault2.d/vault2.hcl > /dev/null <<EOF
 ui = true
+disable_mlock = true
 
-storage "file" {
-  path = "/opt/vault2/data"
+storage "raft" {
+  path = "/opt/vault/vault-2"
+  node_id = "vault-2"
 }
 
 listener "tcp" {
-  address     = "0.0.0.0:8100"
+  address     = "127.0.0.1:8100"
   tls_disable = true
 }
 
-disable_mlock = true
+seal "transit" {
+  address = "http://127.0.0.1:8200"
+  key_name = "autounseal"
+  mount_path = "transit/"
+  token = "write here your token"
+  tls_skip_verify = true
+}
+
 api_addr      = "http://127.0.0.1:8100"
 cluster_addr  = "http://127.0.0.1:8101"
 EOF
 
-sudo mkdir -p /opt/vault2/data
+sudo mkdir -p /opt/vault/vault-2
 
-sudo systemctl restart vault2
+sudo chown -R root:root /opt/vault/vault-2
+sudo chmod -R 700 /opt/vault/vault-2
+sudo systemctl daemon-reload
+sudo systemctl enable vault2
+sudo systemctl start vault2
 
-vault status
 
-vault operator init
+
+VAULT_ADDR="http://127.0.0.1:8100" vault operator init
