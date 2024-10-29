@@ -74,10 +74,12 @@ service.
 
 Make your API service accessible to chosen servers by name. For example, instead of 172.30.240.25:8080 => mysite.
 
-### Task 11
+### Task 11 - code [run_api_instances.sh](task-11%2Frun_api_instances.sh)
 
 Prepare script to run N instances of your API service and balance incoming traffic between these instances. You can’t
 use load balancer like Nginx.
+
+Usage: `bash run_api.instances.sh NUMBER_OF_INSTANCES_YOU_WANT`
 
 ### Task 12
 
