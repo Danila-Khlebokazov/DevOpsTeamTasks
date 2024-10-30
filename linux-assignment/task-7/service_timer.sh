@@ -1,10 +1,13 @@
 #! /bin/bash
-if [ -z $1 ];then
-  echo "Provide command to start"
-  exit
-fi
+#if [ -z $1 ];then
+#  echo "Provide command to start"
+#  exit
+#fi
 
-command_start=$1
+#command_start=$1
+
+sudo cp -r ./file_monitoring.sh /home/file_monitoring.sh
+sudo chmod +x /home/file_monitoring.sh
 
 sudo tee /etc/systemd/system/rw_permissions.timer > /dev/null <<EOT
 [Unit]
@@ -14,7 +17,6 @@ Requires=rw_permissions.service
 [Timer]
 OnCalendar= *-*-* *:*:05
 Unit=rw_permissions.service
-WorkingDirectory=/
 
 [Install]
 WantedBy=timers.target
@@ -28,11 +30,11 @@ Description=Default RW permissions newly created files
 After=network.target
 
 [Service]
-ExecStart=$command_start
+ExecStart=/bin/bash /home/file_monitoring.sh
 Restart=5s
 User=root
 Group=root
-WorkingDirectory=/
+WorkingDirectory=/home
 
 
 
