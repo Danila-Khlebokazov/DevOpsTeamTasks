@@ -56,7 +56,13 @@ sudo mkdir -p /opt/vault/data
 
 sudo systemctl restart vault
 
-vault status
+init_credits=$(vault operator init -key-shares=1 -key-threshold=1 -format=json)
 
-export VAULT_TOKEN=$(vault operator init -key-shares=1 -key-threshold=1 -format=json | jq -r ".root_token")
+export VAULT_TOKEN=$(echo $init_credits | jq -r ".root_token")
 echo $VAULT_TOKEN > /home/root-token.txt
+
+vault operator unseal $(echo $init_credits | jq -r ".unseal_keys_b64[]")
+
+echo $init_credits | jq -r ".unseal_keys_b64[]" > /home/unseal-key.txt
+
+vault status
