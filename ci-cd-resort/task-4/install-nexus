@@ -1,0 +1,39 @@
+#! /bin/bash
+
+sudo apt update
+
+# Install java
+sudo apt -y install openjdk-8-jre-headless
+java -version
+
+# Install nexus
+sudo wget https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+sudo tar -zxvf latest-unix.tar.gz -C /opt
+sudo mv /opt/nexus-* /opt/nexus
+
+sudo adduser nexus
+usermod nexus -s
+sudo chown -R nexus:nexus /opt/nexus/ /opt/sonatype-work/
+
+echo run_as_user="nexus" | sudo tee /opt/nexus/bin/nexus.rc
+
+# Setting up nexus service
+cat <<EOF | sudo tee /etc/systemd/system/nexus.service
+[Unit]
+Description=nexus service
+After=network.target
+[Service]
+Type=forking
+LimitNOFILE=65536
+ExecStart=/opt/nexus/bin/nexus start
+ExecStop=/opt/nexus/bin/nexus stop
+User=nexus
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl enable nexus
+sudo systemctl start nexus
+
+systemctl status nexus
