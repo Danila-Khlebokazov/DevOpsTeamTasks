@@ -1,0 +1,41 @@
+stages:
+  - build
+  - deploy
+
+
+variables:
+  IMAGE: $NEXUS_SERVER/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA
+  DOCKER_DAEMON_OPTIONS: "--insecure-registry=${NEXUS_SERVER}"
+
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - name: docker:20.10.17-dind
+      entrypoint: [ "sh", "-c", "dockerd-entrypoint.sh $DOCKER_DAEMON_OPTIONS" ]
+  script:
+    - docker login -u $NEXUS_LOGIN -p $NEXUS_PASS $NEXUS_SERVER
+    - docker build . -t $IMAGE
+    - docker push $IMAGE
+
+deploy:
+  stage: deploy
+  before_script:
+    - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $VM_IPADDRESS >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - ssh $SSH_USER@$VM_IPADDRESS  <<EOF
+    - docker pull $IMAGE
+    - docker run -d --name $CI_PROJECT_NAME -p 8000:8000 $IMAGE
+    - EOF
+  only:
+    - main
+    - /^release-.*$/
+  environment:
+    name: production
+    url: http://$VM_IPADDRESS:8000
