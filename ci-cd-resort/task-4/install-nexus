@@ -3,7 +3,7 @@
 sudo apt update
 
 # Install java
-sudo apt -y install openjdk-8-jre-headless
+sudo apt -y install openjdk-11-jre-headless
 java -version
 
 # Install nexus
