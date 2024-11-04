@@ -61,7 +61,7 @@ init_credits=$(vault operator init -key-shares=1 -key-threshold=1 -format=json)
 export VAULT_TOKEN=$(echo $init_credits | jq -r ".root_token")
 echo $VAULT_TOKEN > /home/root-token.txt
 
-echo $init_credits | jq -r ".unseal_keys_b64[]" | vault operator unseal
+vault operator unseal $(echo $init_credits | jq -r ".unseal_keys_b64[]")
 
 echo $init_credits | jq -r ".unseal_keys_b64[]" > /home/unseal-key.txt
 
