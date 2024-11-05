@@ -21,7 +21,7 @@ cleanup() {
 trap 'cleanup' SIGTERM
 
 #Execute a command
-gitlab-runner run --user=gitlab-runner --working-directory=/home/gitlab-runner &
+gitlab-runner run &
 
 #Wait
 wait $!

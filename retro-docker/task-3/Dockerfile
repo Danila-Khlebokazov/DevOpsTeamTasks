@@ -1,11 +1,11 @@
-FROM ubuntu:20.04
+FROM docker:27.3.1-dind-alpine3.20
 
 ENV GITLAB_SOURCE="https://gitlab.com"
 ENV PROJECT_GROUP=""
 ENV GITLAB_ACCESS_TOKEN=""
 ENV TZ="Asia/Almaty"
 
-RUN apt-get update && apt-get install -y build-essential sudo jq git docker.io curl wget unzip
+RUN apk update && apk add --update alpine-sdk sudo jq git curl wget unzip bash
 
 WORKDIR /install
 

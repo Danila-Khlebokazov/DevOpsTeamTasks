@@ -16,17 +16,7 @@ if [ -n "$access_token" ]; then
       echo "Response: $response"
       token=$(echo "$response" | jq -r .token)
       echo "Token: $token"
-      sudo gitlab-runner register --non-interactive --url "$link" --token "$token" --executor "shell" --description "shell-runner"
-
-      cat << EOF | sudo tee /home/gitlab-runner/.bash_logout
-# ~/.bash_logout: executed by bash(1) when login shell exits.
-
-# when leaving the console clear the screen to increase privacy
-
-#if [ "$SHLVL" = 1 ]; then
-#    [ -x /usr/bin/clear_console ] && /usr/bin/clear_console -q
-# fi
-EOF
+      sudo gitlab-runner register --non-interactive --url "$link" --token "$token" --executor "docker" --docker-image "ruby:3.3" --name "docker-runner" --docker-volumes "/var/run/docker.sock:/var/run/docker.sock" --docker-privileged
 exit 0
   else
     echo "Project group were not provided. Please provide a project group using -g option."

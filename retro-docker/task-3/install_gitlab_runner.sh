@@ -26,5 +26,3 @@ sudo curl -L --output /usr/local/bin/gitlab-runner "https://s3.dualstack.us-east
 
 # Set execute permissions
 sudo chmod +x /usr/local/bin/gitlab-runner
-
-sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash

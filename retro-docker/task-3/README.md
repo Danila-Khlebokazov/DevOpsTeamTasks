@@ -2,7 +2,7 @@
 
 1. Pull the docker image from Docker Hub
 ```bash
-docker pull danilakhlebokazov/gitlab-runner:docker-v1.0.2
+docker pull danilakhlebokazov/gitlab-runner:docker-v1.2.0
 ```
 
 2. Prepare your GitLab access token and Group ID in Gitlab
@@ -19,7 +19,7 @@ docker run --rm -d --name gitlab-runner \
     -e GITLAB_SOURCE=$GITLAB_SOURCE \
     -e GITLAB_ACCESS_TOKEN=$GITLAB_ACCESS_TOKEN \
     -e PROJECT_GROUP=$PROJECT_GROUP \
-    danilakhlebokazov/gitlab-runner:docker-v1.0.2
+    danilakhlebokazov/gitlab-runner:docker-v1.2.0
 ```
 
 > If you want to see other images you can visit [Docker Hub](https://hub.docker.com/r/danilakhlebokazov/gitlab-runner/tags)
