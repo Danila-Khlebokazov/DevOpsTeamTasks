@@ -1,0 +1,25 @@
+# docker-compose-node3.yml
+version: "3.8"
+services:
+  minio3:
+    restart: always
+    image: bitnami/minio:2024.7.26
+    container_name: minio3
+    hostname: minio3.local
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_DISTRIBUTED_MODE_ENABLED=yes
+      - MINIO_DISTRIBUTED_NODES=minio1.local,minio2.local,minio3.local,minio4.local
+      - MINIO_SKIP_CLIENT=yes
+      - MINIO_SCHEME=http
+      - MINIO_CONSOLE_PORT_NUMBER=9001
+      - MINIO_SERVER_URL=http://minio.local
+      - MINIO_BROWSER_REDIRECT_URL=http://minio.local/minio/ui
+    volumes:
+      - ./minio3:/bitnami/minio/data
+    healthcheck:
+      test: [ "CMD", "curl", "-k", "https://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
