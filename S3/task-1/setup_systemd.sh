@@ -7,6 +7,15 @@ fi
 
 COMPOSE_DIR=$1
 
+directories=("minio1" "minio2" "minio3" "minio4")
+
+for dir in "${directories[@]}"; do
+  DIR_PATH="$COMPOSE_DIR/$dir"
+  echo "Creating directory $DIR_PATH and setting permissions..."
+  mkdir -p "$DIR_PATH"
+  sudo chown -R 1001:1001 "$DIR_PATH"
+done
+
 SERVICES=("docker-compose-main.yml" "docker-compose-node1.yml" "docker-compose-node2.yml" "docker-compose-node3.yml" "docker-compose-node4.yml")
 
 for SERVICE in "${SERVICES[@]}"; do
