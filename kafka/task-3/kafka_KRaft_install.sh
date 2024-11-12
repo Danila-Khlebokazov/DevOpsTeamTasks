@@ -13,7 +13,7 @@ if [ -z "$topic_name" ] || [ -z "$message" ]; then
     exit
 fi
 
-
+#install java and kafka
 if [ -d "/kafka" ] && [ "$(ls -A /kafka)" ]; then
   echo "Kafka is already installed in /kafka"
 else
