@@ -1,0 +1,6 @@
+[Unit]
+Description=Synchronize data between local system and MinIO bucket
+
+[Service]
+Type=oneshot
+ExecStart=ExecStart=/usr/bin/rclone sync <path-to-dir> minio_remote:testbucket
