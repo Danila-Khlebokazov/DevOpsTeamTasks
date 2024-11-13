@@ -1,12 +1,33 @@
-#! /bin/bash
-#if [ -z $1 ];then
-#  echo "Provide command to start"
-#  exit
-#fi
+#!/bin/bash
 
-#command_start=$1
+sudo tee /home/file_monitoring.sh > /dev/null <<'EOF'
+#!/bin/bash
 
-sudo cp -r ./file_monitoring.sh /home/file_monitoring.sh
+WATCHDIR="/home/logs/"
+username=task5user
+usergroup=task5group
+NEWFILESNAME=.newfiles$(basename "$WATCHDIR")
+
+if [ ! -f "$WATCHDIR"/.oldfiles ]; then
+  ls -A "$WATCHDIR" > "$WATCHDIR"/.oldfiles
+fi
+
+ls -A "$WATCHDIR" > $NEWFILESNAME
+
+DIRDIFF=$(diff "$WATCHDIR"/.oldfiles $NEWFILESNAME | grep "^>" | cut -f 2 -d " ")
+echo $DIRDIFF
+
+for file in $DIRDIFF; do
+  echo $file
+  if [ -e "$WATCHDIR"/$file ]; then
+      sudo chown $username:$usergroup "$WATCHDIR"/$file
+      sudo chmod 660 "$WATCHDIR"/$file
+  fi
+done
+
+rm $NEWFILESNAME
+EOF
+
 sudo chmod +x /home/file_monitoring.sh
 
 sudo tee /etc/systemd/system/rw_permissions.timer > /dev/null <<EOT
@@ -15,7 +36,9 @@ Description=Timer for rw_permissions
 Requires=rw_permissions.service
 
 [Timer]
-OnCalendar= *-*-* *:*:05
+OnBootSec=5
+OnUnitActiveSec=10
+AccuracySec=1
 Unit=rw_permissions.service
 
 [Install]
