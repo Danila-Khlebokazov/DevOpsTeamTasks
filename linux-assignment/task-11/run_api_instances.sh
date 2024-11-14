@@ -1,16 +1,25 @@
 #!/bin/bash
 
 N=$1 # number of instances, passed through command line, the first argument /run_api_instances.sh N(for ex.3)
+if [ -z $N ]; then
+  echo "Please provide the number of instances to run"
+  exit 1
+fi
 BASE_PORT=8080
 PROCESS_LIST=() # list of processes their id, to terminate later
 CURRENT=0 # used for round robin algorithm
+api_server_path=$2
+if [ -z $api_server_path ]; then
+  echo "Please provide the path to the API server"
+  exit 1
+fi
 
 # instance initialization
 start_instances() {
   echo "starting $N instances of API server..."
   for ((i = 0; i < N; i++)); do
     PORT=$((BASE_PORT+i)) # 8080 + i
-    ./api_server "$PORT" &
+    "$api_server_path" "$PORT" &
     PROCESS_LIST+=($!)
     echo "Started server instance $((i+1)) on port $PORT with process id ${PROCESS_LIST[i]}"
   done
