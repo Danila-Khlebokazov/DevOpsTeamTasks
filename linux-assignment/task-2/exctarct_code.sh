@@ -1,5 +1,10 @@
 #! /bin/bash
 
+if ! [ -x "$(command -v unzip)" ]; then
+  echo 'Error: unzip is not installed.' >&2
+  exit 1
+fi
+
 curr=$(pwd)
 curr_dir=$(echo "${PWD##*/}")
 
