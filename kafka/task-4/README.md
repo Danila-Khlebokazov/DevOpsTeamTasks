@@ -232,7 +232,7 @@ echo "Validation passed for $CONFIG_TOPICS"
 
 ### CI/CD Pipeline Example
 
-1. **Sample `topics.yml`**:
+1. **Sample `topics.yml` that creates new-topic**:
    ```yaml
    topics:
      - name: "new-topic"
@@ -241,7 +241,16 @@ echo "Validation passed for $CONFIG_TOPICS"
        delete_policy: "create"
    ```
 
-2. **Sample `permissions.yml`**:
+2. 1. **Sample `topics.yml` that deletes new-topic**:
+```yaml
+topics:
+  - name: "new-topic"
+    partitions: 1
+    replication_factor: 1
+    delete_policy: "delete"
+```
+
+3. **Sample `permissions.yml`**:
    ```yaml
    permissions:
      - user: "service-b"
