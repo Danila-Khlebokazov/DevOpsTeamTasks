@@ -1,0 +1,5 @@
+topics:
+  - name: "example-topic5"
+    partitions: 1
+    replication_factor: 1
+    delete_policy: "create"

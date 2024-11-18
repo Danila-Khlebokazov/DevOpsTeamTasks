@@ -1,0 +1,36 @@
+image: ubuntu:20.04
+stages:
+  - validate
+  - deploy
+
+variables:
+  CONFIG_DIR: "configs"
+  KAFKA_BROKER: $KAFKA_BROKER_IP:9092
+
+before_script:
+  - apt-get update && apt-get install -y wget
+  - wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+  - chmod +x /usr/local/bin/yq
+  - chmod +x ./scripts/validate.sh
+
+validate:
+  stage: validate
+  script:
+    - echo "Validating Kafka configuration"
+    - echo "topics file"
+    - cat $CONFIG_DIR/topics.yml
+    - echo "permissions file"
+    - cat $CONFIG_DIR/permissions.yml
+    - ./scripts/validate.sh $CONFIG_DIR/topics.yml $CONFIG_DIR/permissions.yml
+  only:
+    - merge_requests
+
+deploy:
+  stage: deploy
+  image: python:3.11
+  before_script:
+    - pip install kafka-python pyyaml
+  script:
+    - python scripts/deploy_changes.py $CONFIG_DIR/topics.yml $CONFIG_DIR/permissions.yml $KAFKA_BROKER_IP
+  only:
+    - main

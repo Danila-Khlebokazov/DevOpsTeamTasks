@@ -1,0 +1,7 @@
+permissions:
+  - user: "service-b"
+    topic: "example-topic"
+    access: ["read", "write"]
+  - user: "admin-user"
+    topic: "example-topic"
+    access: ["admin"]
