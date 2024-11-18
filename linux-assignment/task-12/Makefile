@@ -13,19 +13,19 @@ user=
 # example.com
 host=
 run-task3:
-	sudo bash ../task-3/configure-ssh.sh $(user) $(host)
+	bash ../task-3/configure-ssh.sh $(user) $(host)
 
 #example path/DevOpsTeamTasks/linux-assignment/task-4/main
 run_command_task4=
 run-task4:
-	sudo bash ../task-4/logrotate_setup.sh $(run_command_task4)
+	sudo bash ../task-4/logrotate_setup.sh "$(run_command_task4)"
 
 #example path/DevOpsTeamTasks/linux-assignment/task-4
 app_folder=/home/fifs/Documents/DevOpsTeamTasks/linux-assignment/task-4
 #example /app/main
 run_command_task5=/app/main
 run-task5:
-	sudo bash ../task-5/service.sh $(app_folder) $(run_command_task5)
+	sudo bash ../task-5/service.sh "$(app_folder)" "$(run_command_task5)"
 
 run-task6:
 	bash ../task-6/top-n-heaviest-files.sh
@@ -38,7 +38,7 @@ file_path=
 #blabla
 new_job_name=
 run-task8:
-	sudo bash ../task-8/change-job-name.sh $(file_path) $(new_job_name)
+	bash ../task-8/change-job-name.sh "$(file_path)" "$(new_job_name)"
 
 #example: -a 192.168.1.100:80 -d 192.168.1.101 -p 443 --allow_all
 option=
@@ -57,7 +57,7 @@ number_of_instances=
 # /home/fifs/Documents/DevOpsTeamTasks/linux-assignment/task-11/api_server
 api_server_path=
 run-task11:
-	sudo bash ../task-11/run_api_instances.sh $(number_of_instances) $(api_server_path)
+	sudo bash ../task-11/run_api_instances.sh $(number_of_instances) "$(api_server_path)"
 
 
 

@@ -19,7 +19,7 @@ start_instances() {
   echo "starting $N instances of API server..."
   for ((i = 0; i < N; i++)); do
     PORT=$((BASE_PORT+i)) # 8080 + i
-    "$api_server_path" "$PORT" &
+    $api_server_path $PORT &
     PROCESS_LIST+=($!)
     echo "Started server instance $((i+1)) on port $PORT with process id ${PROCESS_LIST[i]}"
   done
