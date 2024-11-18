@@ -2,6 +2,8 @@
 
 For tasks given during DevOps course
 
+[Management table](https://docs.google.com/spreadsheets/d/1a37J3YI5l-eGUXwY-xmkUk_T5HHvqnZKmletr-M0T8w/edit?usp=sharing)
+
 ### Value Stream Map - Sad Manager
 
 Link to
