@@ -1,6 +1,5 @@
 # README: Kafka Disaster Recovery and Start Scripts
 
-This document provides details on two scripts designed to manage a Kafka cluster's disaster recovery process and startup sequence:
 
 1. `kafka_disaster_recovery.sh`: Periodically stops and restarts Kafka brokers to simulate failure scenarios and test recovery.
 2. `start-kafka-brokers-and-zookeeper.sh`: Starts Zookeeper and all Kafka brokers.
@@ -18,7 +17,6 @@ This document provides details on two scripts designed to manage a Kafka cluster
 
 ## Script 1: `kafka_disaster_recovery.sh`
 
-### Functionality
 
 1. **Stops All Brokers**:
     - Uses `kafka-server-stop.sh` to stop brokers gracefully.
@@ -44,8 +42,6 @@ bash kafka_disaster_recovery.sh
 ---
 
 ## Script 2: `start-kafka-brokers-and-zookeeper.sh`
-
-### Functionality
 
 1. **Starts Zookeeper**:
     - Runs Zookeeper using `zookeeper.properties`.
