@@ -4,7 +4,6 @@
 1. `kafka_disaster_recovery.sh`: Periodically stops and restarts Kafka brokers to simulate failure scenarios and test recovery.
 2. `start-kafka-brokers-and-zookeeper.sh`: Starts Zookeeper and all Kafka brokers.
 
----
 
 ## Prerequisites
 
@@ -13,7 +12,6 @@
     - `zookeeper.properties`: Zookeeper configuration file.
     - `broker01.properties`, `broker02.properties`, `broker03.properties`: Configuration files for Kafka brokers.
 
----
 
 ## Script 1: `kafka_disaster_recovery.sh`
 
@@ -38,8 +36,6 @@
 ```bash
 bash kafka_disaster_recovery.sh
 ```
-
----
 
 ## Script 2: `start-kafka-brokers-and-zookeeper.sh`
 
