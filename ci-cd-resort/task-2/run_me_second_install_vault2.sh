@@ -35,7 +35,7 @@ sudo sed -i 's#User=vault#User=root#g' /lib/systemd/system/vault2.service
 
 export VAULT_ADDR="http://127.0.0.1:8200"
 export VAULT_TOKEN=$(cat /home/root-token.txt)
-export UNWRAPPED_TOKEN=$(vault unwrap -field=token $(cat /home/wrapping-token.txt))
+export UNWRAPPED_TOKEN=$(vault unwrap -field=token $(cat ./wrapping-token.txt))
 sudo mkdir -p /etc/vault2.d/
 sudo tee /etc/vault2.d/vault2.hcl > /dev/null <<EOF
 ui = true
@@ -73,4 +73,7 @@ sudo systemctl start vault2
 
 
 
-VAULT_ADDR="http://127.0.0.1:8100" vault operator init
+init_credits=$(VAULT_ADDR="http://127.0.0.1:8100" vault operator init -format=json)
+
+export VAULT_TOKEN2=$(echo $init_credits | jq -r ".root_token")
+echo $VAULT_TOKEN2 > /home/root-token2.txt
