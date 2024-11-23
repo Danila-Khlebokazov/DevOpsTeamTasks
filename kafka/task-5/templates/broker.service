@@ -1,0 +1,15 @@
+[Unit]
+Description=Apache Kafka - broker
+Requires=zookeeper.service
+After=zookeeper.service
+
+[Service]
+ExecStart=/opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/broker.properties
+Restart=on-abnormal
+WorkingDirectory=/
+User=kafka
+Group=kafka
+#Environment="KAFKA_OPTS=-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf"
+
+[Install]
+WantedBy=multi-user.target
