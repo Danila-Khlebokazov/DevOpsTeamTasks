@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
@@ -27,15 +28,11 @@ type Movie struct {
 }
 
 var users []User
-var DB_URL string
+
+var dbconn *pgxpool.Pool
 
 func GetAllUsers() {
-	conn, err := pgx.Connect(context.Background(), DB_URL)
-	if err != nil {
-		log.Fatal("Error connecting to DB at startup: ", err)
-	}
-	defer conn.Close(context.Background())
-	rows, err := conn.Query(context.Background(), "select user_id, device_id from public.user")
+	rows, err := dbconn.Query(context.Background(), "select user_id, device_id from public.user")
 	if err != nil {
 		log.Fatal("Error getting all users at startup: ", err)
 	}
@@ -51,18 +48,13 @@ func GetAllUsers() {
 }
 
 func GetRandomRecs(ctx *gin.Context, by_device_id bool) {
-	conn, err := pgx.Connect(ctx, DB_URL)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	defer conn.Close(ctx)
 	user := users[rand.Intn(len(users))]
 	var rows pgx.Rows
+	var err error
 	if by_device_id {
-		rows, err = conn.Query(ctx, "select * from get_recommendations_by_device_id($1)", user.DeviceID)
+		rows, err = dbconn.Query(ctx, "select * from get_recommendations_by_device_id($1)", user.DeviceID)
 	} else {
-		rows, err = conn.Query(ctx, "select * from get_recommendations_by_user_id($1)", user.UserID)
+		rows, err = dbconn.Query(ctx, "select * from get_recommendations_by_user_id($1)", user.UserID)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -90,12 +82,12 @@ func main() {
 	if err := godotenv.Load(".env"); err != nil {
 		log.Println("Error loading .env file\n" + err.Error())
 	}
-	DB_URL = os.Getenv("DATABASE_URL")
-	// var err error
-	// dbconn, err = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
-	// if err != nil {
-	// 	log.Fatal("Unable to create connection: ", err)
-	// }
+	var err error
+	dbconn, err = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	// conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatal("Unable to create connection: ", err)
+	}
 	GetAllUsers()
 
 	if os.Getenv("RELEASE") == "true" {
