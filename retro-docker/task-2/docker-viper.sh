@@ -33,7 +33,7 @@ viper() {
         docker rmi $image
         sed -i "/$image/d" "$VIPE_JOURNAL"
         echo "Viper viped image $image at $(date)"
-        curl -X POST "https:/api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage?chat_id=$TELEGRAM_CHAT_ID&text=\"Viper viped image \"$image\" at \"$(date)\""
+        curl -s -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage -d chat_id="$TELEGRAM_CHAT_ID" -d text="Viper viped image $image at $(date)"
       fi
     else
       echo "$image $last_used" >> "$VIPE_JOURNAL"
