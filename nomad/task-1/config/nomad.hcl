@@ -1,4 +1,4 @@
-data_dir = "/home/tobzhan/test_nomad/log/nomad/data"
+data_dir = "<fill-it>"
 bind_addr = "0.0.0.0"
 server {
 	enabled = true
@@ -11,9 +11,14 @@ client {
 	enabled = true
 	servers = ["127.0.0.1:4647"]
 	host_volume "postgres" {
-		path = ""
+		path = "<fill-it>"
 		read_only = false
 	}
+        
+  host_volume "backupData" {
+    path = "<fill-it>"
+    read_only = false
+  }
 }
 
 plugin "raw_exec" {

@@ -11,25 +11,51 @@ job "postgresql" {
         static = 5432
       }
     }
-    volume "postgres_data" {
+
+    volume "backup_dir" {
       type      = "host"
-      read_only = false 
-      source    = "postgres"
+      read_only = false
+      source    = "backupData"
     }
+
     task "postgresql" {
       driver = "docker"
+     
+      volume_mount {
+        volume      = "backup_dir"
+        destination = "/folder/backup"
+        read_only   = false
+      }
+ 
       config {
         image = "postgres:14.15-alpine"
         ports = ["db"] 
-        volumes = [
-          "postgres_data:/var/lib/postgresql/data" 
-        ]
-      }
+	      hostname = "my_postgresql"
+        entrypoint = ["/bin/sh", "-c"]
+        args = [
+          <<EOT
+echo "Starting PostgreSQL..."
+BACKUP_DIR="/folder/backup";
+echo "Backup directory: $BACKUP_DIR";
+LATEST_BACKUP=$(ls -t $BACKUP_DIR/backup_*.sql 2>/dev/null | head -n 1);
+echo "LATEST: $LATEST_BACKUP";
+if [ -n "$LATEST_BACKUP" ]; then
+	echo "Restoring from backup: $LATEST_BACKUP...";
+	
+	PGPASSWORD=$POSTGRES_PASSWORD psql -U postgres -d $POSTGRES_DB < "$LATEST_BACKUP";
+	echo "Restore complete.";
+else
+	echo "No backup found, starting with a clean database.";
+fi;
+exec docker-entrypoint.sh postgres
+EOT
+        ]      
+}
 
       env {
         POSTGRES_PASSWORD = "devopsina"
         POSTGRES_DB       = "mydb"
-      }
+     }
 
       service {
 	provider = "nomad"
@@ -45,6 +71,7 @@ job "postgresql" {
         mode     = "delay" 
       }
     }
+
   }
 }
 
