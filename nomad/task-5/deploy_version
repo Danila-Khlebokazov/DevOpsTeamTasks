@@ -1,0 +1,45 @@
+#! /bin/bash
+if [ -z "$1" ]; then
+  echo "Please provide a file with .deploy extension"
+  exit 1
+fi
+
+if [ ! -f $1 ]; then
+  echo "File $1 does not exist"
+  exit 1
+fi
+
+if [[ $1 != *.deploy ]]; then
+  echo "File $1 does not have .deploy extension"
+  exit 1
+fi
+
+image=$(cat $1 | grep image | cut -d'=' -f2)
+
+
+if [ -f app.lock ]; then
+  curr_image=$(cat app.lock | grep image | cut -d'=' -f2)
+  container_id=$(cat app.lock | grep container_id | cut -d'=' -f2)
+fi
+
+if [ "$image" == "$curr_image" ]; then
+  echo "The image is the same as the current image"
+  echo "No need to deploy"
+  exit 0
+fi
+
+
+echo "Deploying the new version"
+echo "Image: $image"
+
+new_container_id=$(docker run -d --rm --name "task-5-$1" -l "traefik.enable=true" -l 'traefik.http.routers.web1.rule=PathPrefix(`/`)' -l "traefik.http.services.web1.loadbalancer.server.port=8000" --network task-5-test $image)
+
+docker stop $container_id
+
+
+container_ip=$(docker inspect "task-5-$1" | jq '.[0].NetworkSettings.Networks["task-5-test"].IPAddress')
+echo "Container IP: $container_ip"
+
+
+echo "image=$image" > app.lock
+echo "container_id=$new_container_id" >> app.lock
