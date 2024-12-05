@@ -1,0 +1,70 @@
+---
+- name: Configure and run Nomad
+  hosts: localhost
+  become: yes
+  connection: local
+  vars:
+    log_level: "INFO"
+    data_dir: "/opt/nomad"
+    bind_addr: "0.0.0.0"
+    advertise_http: "{{ ansible_default_ipv4.address }}:4646"
+    advertise_rpc: "{{ ansible_default_ipv4.address }}:4647"
+    advertise_serf: "{{ ansible_default_ipv4.address }}:4648"
+    client_enabled: false
+    client_servers: ["127.0.0.1"]
+    server_enabled: true
+    bootstrap_expect: 1
+
+  tasks:
+    - name: Create data directory for Nomad
+      ansible.builtin.file:
+        path: "{{ data_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Generate Nomad configuration file
+      ansible.builtin.template:
+        src: templates/nomad.hcl.j2
+        dest: /etc/nomad.d/nomad.hcl
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Create Nomad systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/nomad.service
+        content: |
+          [Unit]
+          Description=Nomad
+          Documentation=https://www.nomadproject.io/docs/
+          Requires=network-online.target
+          After=network-online.target
+
+          [Service]
+          ExecStart=/usr/bin/nomad agent -config=/etc/nomad.d
+          ExecReload=/bin/kill -HUP $MAINPID
+          KillMode=process
+          KillSignal=SIGINT
+          Restart=on-failure
+          LimitNOFILE=65536
+          TasksMax=infinity
+          User=root
+          Group=root
+
+          [Install]
+          WantedBy=multi-user.target
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: yes
+
+    - name: Enable and start Nomad service
+      ansible.builtin.systemd:
+        name: nomad
+        enabled: yes
+        state: started

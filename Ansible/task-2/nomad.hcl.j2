@@ -1,0 +1,27 @@
+# Nomad agent configuration
+log_level = "{{ log_level }}"
+data_dir  = "{{ data_dir }}"
+bind_addr = "{{ bind_addr }}" # Address to bind for network traffic
+
+# Advertise addresses for different Nomad roles
+advertise {
+  http = "{{ advertise_http }}"
+  rpc  = "{{ advertise_rpc }}"
+  serf = "{{ advertise_serf }}"
+}
+
+# Client configuration (if enabled)
+{% if client_enabled %}
+client {
+  enabled = true
+  servers = {{ client_servers | to_nice_json }}
+}
+{% endif %}
+
+# Server configuration (if enabled)
+{% if server_enabled %}
+server {
+  enabled          = true
+  bootstrap_expect = {{ bootstrap_expect }}
+}
+{% endif %}
