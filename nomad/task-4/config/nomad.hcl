@@ -7,9 +7,15 @@ server {
 log_level  = "DEBUG"
 datacenter = "kbtu"
 
+
 client {
   enabled = true
   servers = ["127.0.0.1:4647"]
+
+  host_volume "autoscale" {
+    path = ""
+    read_only = false
+  }
 }
 
 plugin "docker" {}
